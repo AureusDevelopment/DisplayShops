@@ -128,7 +128,13 @@
         <dependency>
             <groupId>org.geysermc.geyser</groupId>
             <artifactId>api</artifactId>
-            <version>2.1.2-SNAPSHOT</version>
+            <version>2.4.3-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geysermc.floodgate</groupId>
+            <artifactId>api</artifactId>
+            <version>2.2.3-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

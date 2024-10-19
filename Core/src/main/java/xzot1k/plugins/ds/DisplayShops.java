@@ -104,6 +104,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     private FileConfiguration langConfig;
     private File langFile, loggingFile;
     private HashMap<String, Menu> menuMap;
+/*    public GeyserHook geyserHook;*/
 
     /**
      * @return Returns the plugin's instance.
@@ -160,6 +161,10 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             throw new RuntimeException("Plugin is not compatible with this server version! Your server version: "+Ref.serverVersion());
         }
 
+        /*if(isGeyserInstalled()){
+            log(Level.INFO,"Geyser is present! Initiating Geyser API features...");
+            geyserHook=new GeyserHook(this);
+        }*/
 
 
         setPaperSpigot(false);

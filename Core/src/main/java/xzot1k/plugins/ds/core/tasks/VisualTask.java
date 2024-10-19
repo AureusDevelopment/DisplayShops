@@ -5,6 +5,7 @@
 package xzot1k.plugins.ds.core.tasks;
 
 import me.devtec.shared.Ref;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
@@ -119,14 +120,32 @@ public class VisualTask extends BukkitRunnable {
 
                 for (Player player : getPluginInstance().getServer().getOnlinePlayers()) {
                     if (player == null || !player.isOnline()) {continue;}
+                    boolean experimental = DisplayShops.getPluginInstance().getConfig().getBoolean("experimental");
 
-                    final Shop foundShopAtLocation = getPluginInstance().getManager().getShopRayTraced(player.getWorld().getName(),
-                            player.getEyeLocation().toVector(), player.getEyeLocation().getDirection(), 10/*getViewDistance()*/);
+                    boolean isFocused=false;
+                    if(!experimental) {
+                        final Shop foundShopAtLocation = getPluginInstance().getManager().getShopRayTraced(player.getWorld().getName(),
+                                player.getEyeLocation().toVector(), player.getEyeLocation().getDirection(), 10/*getViewDistance()*/);
 
-                    boolean isFocused = foundShopAtLocation != null && foundShopAtLocation.getShopId().toString().equals(shop.getShopId().toString());
+                        isFocused = foundShopAtLocation != null && foundShopAtLocation.getShopId().toString().equals(shop.getShopId().toString());
+                    } else {
+                        double value = (double) DisplayShops.getPluginInstance().getConfig().getInt("display-distance") /2;
+                        Location min = shop.getBaseLocation().asBukkitLocation().clone().subtract(value,value,value);
+                        Location max = shop.getBaseLocation().asBukkitLocation().clone().add(value,value,value);
+                        for(x=min.getBlockX();x<=max.getBlockY();x++){
+                            for(y=min.getBlockY();y<=max.getBlockY();y++){
+                                for(z=min.getBlockZ();z<=max.getBlockZ();z++){
+                                    if(player.getLocation().getBlockX()==x&&player.getLocation().getBlockY()==y&&player.getLocation().getBlockZ()==z){
+                                        isFocused=true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    boolean finFocused = isFocused;
                     DisplayShops.getPluginInstance().getServer().getScheduler().runTask(DisplayShops.getPluginInstance(), () -> {
-
-                        display.show(player, isFocused);
+                        display.show(player, finFocused);
                     });
                 }
 
@@ -159,6 +178,7 @@ public class VisualTask extends BukkitRunnable {
                 }
 
                 if (!packetExists) getPluginInstance().sendDisplayPacket(shop, player, false);
+
 
                 Shop currentShop = null;
                 if (!getPluginInstance().getShopMemory().isEmpty() && getPluginInstance().getShopMemory().containsKey(player.getUniqueId())) {

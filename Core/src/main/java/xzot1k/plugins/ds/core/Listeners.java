@@ -103,12 +103,12 @@ public class Listeners implements Listener {
         if (e.getClickedBlock() == null) {
             return;
         }
-        boolean block =false;
-        if(e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null && e.getItem().getType().name().contains("SIGN")){
-            if(e.getPlayer().isSneaking()){
+        boolean block = false;
+        if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null && e.getItem().getType().name().contains("SIGN")) {
+            if (e.getPlayer().isSneaking()) {
                 return;
             }
-            block=true;
+            block = true;
         }
 
         final boolean isOffhandVersion = Ref.isNewerThan(8);
@@ -159,7 +159,7 @@ public class Listeners implements Listener {
 
         final Shop shop = getPluginInstance().getManager().getShop(e.getClickedBlock().getLocation());
         if (shop == null) return;
-        if(block){
+        if (block) {
             e.setCancelled(true);
             return;
         }
@@ -339,7 +339,16 @@ public class Listeners implements Listener {
 
                     if (editPrevention) shop.setCurrentEditor(e.getPlayer().getUniqueId());
                     dataPack.setSelectedShop(shop);
-
+                    /*System.out.println("A");
+                    if (pluginInstance.isGeyserInstalled()) {
+                        GeyserConnection conn = pluginInstance.geyserHook.getPlayer(e.getPlayer());
+                        if (conn != null) {
+                            System.out.println("SEND_FORM_1");
+                            conn.sendForm(CustomForm.builder().title("TestTitle").toggle("test_toggle", true).closedOrInvalidResultHandler(() -> System.out.println("Test_1")).resultHandler((a, b) -> System.out.println(a.content() + " | " + b.responseType())).build());
+                            getPluginInstance().runEventCommands("shop-edit", e.getPlayer());
+                            return;
+                        }
+                    }*/
                     final Menu editMenu = getPluginInstance().getMenu("edit");
                     if (editMenu != null) editMenu.build(e.getPlayer());
 
@@ -359,7 +368,17 @@ public class Listeners implements Listener {
                 if (shopTransactionEvent.isCancelled()) return;
 
                 dataPack.setSelectedShop(shop);
-
+                /*System.out.println("B");
+                if (pluginInstance.isGeyserInstalled()) {
+                    GeyserConnection conn = pluginInstance.geyserHook.getPlayer(e.getPlayer());
+                    if (conn != null) {
+                        System.out.println("SEND_FORM_2");
+                        FloodgateApi api = FloodgateApi.getInstance();
+                        api.getPlayer(e.getPlayer().getUniqueId()).sendForm(CustomForm.builder().title("TestTitle").toggle("test_toggle", true).closedOrInvalidResultHandler(() -> System.out.println("Test_1")).resultHandler((a, b) -> System.out.println(a.content() + " | " + b.responseType())));
+                        getPluginInstance().runEventCommands("shop-edit", e.getPlayer());
+                        return;
+                    }
+                }*/
                 final Menu editMenu = getPluginInstance().getMenu("transaction");
                 if (editMenu != null) editMenu.build(e.getPlayer());
 
@@ -494,10 +513,12 @@ public class Listeners implements Listener {
                 dataPack.setSelectedShop(shop);
 
                 final Menu editMenu = getPluginInstance().getMenu("edit");
-                if (editMenu != null) editMenu.build(e.getPlayer());
+                if (editMenu != null)
+                    editMenu.build(e.getPlayer());
 
                 getPluginInstance().runEventCommands("shop-edit", e.getPlayer());
             } else {
+                System.out.println("B");
                 if (!shop.isAdminShop() && !getPluginInstance().getConfig().getBoolean("offline-mode")) {
                     Player player = getPluginInstance().getServer().getPlayer(shop.getOwnerUniqueId());
                     if (player == null || !player.isOnline()) {
