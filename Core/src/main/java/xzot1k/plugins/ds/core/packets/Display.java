@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class Display {
 
@@ -65,6 +66,10 @@ public class Display {
     }
 
     public void delete() {
+        if(shop.getOwnerUniqueId()==null){
+            DisplayShops.getPluginInstance().log(Level.WARNING,"DisplayShop with null owner detected! Location: "+shop.getBaseLocation().asBukkitLocation().toString());
+            return;
+        }
         DisplayShops.getPluginInstance().getDisplayManager().getShopDisplays().remove(shop.getOwnerUniqueId());
         Clear();
     }

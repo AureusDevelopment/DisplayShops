@@ -518,7 +518,6 @@ public class Listeners implements Listener {
 
                 getPluginInstance().runEventCommands("shop-edit", e.getPlayer());
             } else {
-                System.out.println("B");
                 if (!shop.isAdminShop() && !getPluginInstance().getConfig().getBoolean("offline-mode")) {
                     Player player = getPluginInstance().getServer().getPlayer(shop.getOwnerUniqueId());
                     if (player == null || !player.isOnline()) {
