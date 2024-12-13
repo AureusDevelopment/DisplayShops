@@ -101,15 +101,17 @@ public class MenuListener implements Listener {
         }
         Listeners.openClaimMenu.remove(e.getPlayer().getUniqueId());
 
-        final DataPack dataPack = INSTANCE.getManager().getDataPack(player);
-        if (dataPack.getInteractionType() != null) return;
+        Bukkit.getScheduler().runTaskAsynchronously(INSTANCE, () -> {
+            final DataPack dataPack = INSTANCE.getManager().getDataPack(player);
+            if (dataPack.getInteractionType() != null) return;
 
-        Menu menu = INSTANCE.getMenu(invName);
-        if (menu != null && menu.getMenuName().contains("assistants")
-                && dataPack.getSelectedShop() != null)
-            dataPack.getSelectedShop().save(true);
+            Menu menu = INSTANCE.getMenu(invName);
+            if (menu != null && menu.getMenuName().contains("assistants")
+                    && dataPack.getSelectedShop() != null)
+                dataPack.getSelectedShop().save(true);
 
-        dataPack.resetEditData();
+            dataPack.resetEditData();
+        });
     }
 
     private boolean isEmpty(Shop shop) {

@@ -10,7 +10,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>Core</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.7</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -19,7 +19,6 @@
         <core.build>1</core.build>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <build>
         <defaultGoal>clean package</defaultGoal>
         <finalName>DisplayShops_${project.version}</finalName>
@@ -325,7 +324,25 @@
         </dependency>
         <dependency>
             <groupId>xzot1k.plugins.ds</groupId>
+            <artifactId>v1_20_r6</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xzot1k.plugins.ds</groupId>
             <artifactId>v1_21</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xzot1k.plugins.ds</groupId>
+            <artifactId>v1_21_r2</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xzot1k.plugins.ds</groupId>
+            <artifactId>v1_21_r3</artifactId>
             <version>1.0</version>
             <scope>compile</scope>
         </dependency>

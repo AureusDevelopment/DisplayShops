@@ -286,7 +286,7 @@ public class DPacket implements DisplayPacket {
             if (serializerTypeID >= 0) {
                 metaData.d(serializerTypeID);
                 OPTIONAL_CHAT_COMPONENT_SERIALIZER.a(metaData, Optional.of(CraftChatMessage
-                    .fromString(DisplayShops.getPluginInstance().getManager().color(name), false)[0]));
+                        .fromString(DisplayShops.getPluginInstance().getManager().color(name), false)[0]));
             }
 
             // set name visibility
@@ -318,7 +318,9 @@ public class DPacket implements DisplayPacket {
         }
     }
 
-    public void sendPacket(@NotNull PlayerConnection playerConnection, @NotNull Packet<?> packet) {playerConnection.a().sendPacket(packet);}
+    public void sendPacket(@NotNull PlayerConnection playerConnection, @NotNull Packet<?> packet) {
+        playerConnection.a().sendPacket(packet);
+    }
 
     private DisplayShops getPluginInstance() {
         return this.pluginInstance;

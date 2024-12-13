@@ -205,7 +205,9 @@ public class DPacket implements DisplayPacket {
         }
     }
 
-    private PlayerConnection getPlayerConnection(@NotNull Player player) {return ((CraftPlayer) player).getHandle().b;}
+    private PlayerConnection getPlayerConnection(@NotNull Player player) {
+        return ((CraftPlayer) player).getHandle().b;
+    }
 
     private PacketDataSerializer buildSerializer(int id, boolean isItem, double x, double y, double z) {
         PacketDataSerializer pds = new PacketDataSerializer(Unpooled.buffer());
@@ -319,6 +321,8 @@ public class DPacket implements DisplayPacket {
         playerConnection.b.a(packet);
     }
 
-    public Collection<Integer> getEntityIds() {return entityIds;}
+    public Collection<Integer> getEntityIds() {
+        return entityIds;
+    }
 
 }

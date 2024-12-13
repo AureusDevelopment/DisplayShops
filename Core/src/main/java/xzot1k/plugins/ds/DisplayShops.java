@@ -7,9 +7,6 @@ package xzot1k.plugins.ds;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.devtec.shared.Ref;
 import me.devtec.shared.versioning.VersionUtils;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
-import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -50,6 +47,7 @@ import xzot1k.plugins.ds.core.tasks.CleanupTask;
 import xzot1k.plugins.ds.core.tasks.ManagementTask;
 import xzot1k.plugins.ds.core.tasks.VisitItemTask;
 import xzot1k.plugins.ds.core.tasks.VisualTask;
+import xzot1k.plugins.ds.core.utils.MetricsImpl;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -90,7 +88,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
 
     // hook handlers
     private boolean paperSpigot, prismaInstalled, townyInstalled, geyserInstalled,
-            isFolia, isItemAdderInstalled, isOraxenInstalled, isDecentHologramsInstalled, isNBTAPIInstalled;
+            isFolia, isItemAdderInstalled, isOraxenInstalled, isDecentHologramsInstalled, isNBTAPIInstalled, newItemSaving;
     private EconomyHandler economyHandler;
     private HeadDatabaseAPI headDatabaseAPI;
     private PapiHelper papiHelper;
@@ -179,6 +177,9 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         this.townyInstalled = (getServer().getPluginManager().getPlugin("Towny") != null);
         this.isItemAdderInstalled = (getServer().getPluginManager().getPlugin("ItemsAdder") != null);
         this.isOraxenInstalled = (getServer().getPluginManager().getPlugin("Oraxen") != null);
+
+        this.newItemSaving = getConfig().getBoolean("new-item-mysql-saving");
+
         setPrismaInstalled(getServer().getPluginManager().getPlugin("Prisma") != null);
 
         new WorldGuardHandler(this);
@@ -254,24 +255,14 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         else if (isOutdated())
             log(Level.INFO, "There seems to be a different version on the Spigot resource page '"
                     + getLatestVersion() + "'. You are currently running '" + getDescription().getVersion() + "'.");
-
-        Metrics m = new Metrics(getPluginInstance(), 23070);
-        m.addCustomChart(new SingleLineChart("shop_amount",()->getManager().getShopMap().size()));
-        m.addCustomChart(new SimplePie("modern_displays",()->displayManager!=null?"true":"false"));
-        m.addCustomChart(new SimplePie("claimable_system",()->getConfig().getBoolean("claimable-system",false)?"true":"false"));
-        if(papi!=null)
-            m.addCustomChart(new SingleLineChart("placeholderapi_requests",()->placeholderAPI));
-        m.addCustomChart(new SingleLineChart("item_sells",()->itemSells));
-        m.addCustomChart(new SingleLineChart("item_buys",()->itemBuys));
-        m.addCustomChart(new SingleLineChart("menu_opens",()-> menuOpens));
-        m.addCustomChart(new SimplePie("sql_saving_system",()->isSQL?"true":"false"));
+        new MetricsImpl(this);
     }
 
     public static int menuOpens = 0;
     public static int itemSells = 0;
     public static int itemBuys = 0;
     public static int placeholderAPI;
-    public static boolean isSQL=false;
+    public static boolean isSQL = false;
 
     public static void ClearAllEntities() {
         for (World world : DisplayShops.getPluginInstance().getServer().getWorlds()) {
@@ -388,7 +379,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                         recoveryParameters = "(uuid VARCHAR(100) PRIMARY KEY NOT NULL, currency REAL, item_amount INTEGER, item TEXT)",
                         logParameters = "(timestamp TEXT, shop_id VARCHAR(100), player_id VARCHAR(100), action TEXT, location TEXT, value TEXT)";
                 fixedTables = handleDatabaseFixing(statement, shopParameters, markRegionParameters, playerDataParameters, recoveryParameters, logParameters, host);
-                isSQL=false;
+                isSQL = false;
             } else {
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver");
@@ -417,7 +408,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
 
                 fixedTables = handleDatabaseFixing(statement, shopParameters, markRegionParameters, playerDataParameters, recoveryParameters, logParameters, host);
                 exportMySQLDatabase();
-                isSQL=true;
+                isSQL = true;
             }
         } catch (ClassNotFoundException | SQLException | IOException e) {
             e.printStackTrace();
@@ -937,16 +928,42 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     }
 
 
+    public boolean isNewItemSaving() {
+        return newItemSaving;
+    }
+
     public String toString(@NotNull ItemStack itemStack) {
         YamlConfiguration itemConfig = new YamlConfiguration();
         itemConfig.set("item", itemStack);
-        return itemConfig.saveToString().replace("'", "[sq]").replace("\"", "[dq]");
+
+
+        String item = itemConfig.saveToString();
+        if (isNewItemSaving()) {
+            return "new:" + (new String(encoder.encode(item.getBytes(StandardCharsets.UTF_8))));
+        }
+
+        return item.replace("'", "[sq]").replace("\"", "[dq]");
     }
 
+    private final Base64.Decoder decoder = Base64.getDecoder();
+    private final Base64.Encoder encoder = Base64.getEncoder();
+
     public ItemStack toItem(@NotNull String itemString) {
+        boolean foundNew = false;
+
+        if (itemString.startsWith("new:")) {
+            itemString = itemString.substring(4);
+            itemString = new String(decoder.decode(itemString), StandardCharsets.UTF_8);
+            foundNew = true;
+        }
+
+        if (!foundNew) {
+            itemString = itemString.replace("[sq]", "'").replace("[dq]", "\"");
+        }
+
         YamlConfiguration restoreConfig = new YamlConfiguration();
         try {
-            restoreConfig.loadFromString(itemString.replace("[sq]", "'").replace("[dq]", "\""));
+            restoreConfig.loadFromString(itemString);
         } catch (InvalidConfigurationException e) {
             e.printStackTrace();
         }

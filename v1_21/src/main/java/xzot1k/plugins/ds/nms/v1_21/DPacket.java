@@ -235,7 +235,7 @@ public class DPacket implements DisplayPacket {
             itemStack = CraftItemStack.asNMSCopy(new ItemStack(Material.GLASS));
             if (itemStack != null) {
                 List<Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>> list = new ArrayList<>();
-                list.add(new Pair<>(EnumItemSlot.f , itemStack));
+                list.add(new Pair<>(EnumItemSlot.f, itemStack));
                 PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(id, list);
                 sendPacket(playerConnection, packet);
             }

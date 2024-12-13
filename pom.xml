@@ -35,6 +35,9 @@
         <module>v1_8_r3</module>
         <module>Core</module>
         <module>v1_21</module>
+        <module>v1_20_r6</module>
+        <module>v1_21_r2</module>
+        <module>v1_21_r3</module>
     </modules>
 
     <properties>

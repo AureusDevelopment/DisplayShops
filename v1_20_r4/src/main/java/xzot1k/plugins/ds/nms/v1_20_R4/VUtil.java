@@ -27,19 +27,18 @@ public class VUtil implements VersionUtil {
             Particle particle = Particle.valueOf(particleName);
             if (particle == Particle.DUST) {
                 player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ);
-            }
-            else player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ, 0);
+            } else player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ, 0);
         }
     }
 
     @Override
     public String getNBT(@NotNull ItemStack itemStack, @NotNull String nbtTag) {
         final net.minecraft.world.item.ItemStack item = CraftItemStack.asNMSCopy(itemStack);
-        if(item.e()){
+        if (item.e()) {
             return null;
         }
         CustomData data = item.a(DataComponents.b);
-        if(data!=null){
+        if (data != null) {
             return data.c().l(nbtTag);
         }
         return null;
@@ -48,16 +47,16 @@ public class VUtil implements VersionUtil {
     @Override
     public ItemStack updateNBT(@NotNull ItemStack itemStack, @NotNull String nbtTag, @NotNull String value) {
         final net.minecraft.world.item.ItemStack item = CraftItemStack.asNMSCopy(itemStack);
-        if(item.e()){
+        if (item.e()) {
             return CraftItemStack.asBukkitCopy(item);
         }
         CustomData d = item.a(DataComponents.b);
         NBTTagCompound nbt = new NBTTagCompound();
-        if(d!=null){
-            nbt=d.c();
+        if (d != null) {
+            nbt = d.c();
         }
-        nbt.a(nbtTag,value);
-        item.b(DataComponents.b,CustomData.a(nbt));
+        nbt.a(nbtTag, value);
+        item.b(DataComponents.b, CustomData.a(nbt));
         return CraftItemStack.asBukkitCopy(item);
     }
 

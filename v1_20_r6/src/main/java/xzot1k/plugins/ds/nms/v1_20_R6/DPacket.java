@@ -2,24 +2,29 @@
  * Copyright (c) 2021 XZot1K, All rights reserved.
  */
 
-package xzot1k.plugins.ds.nms.v1_19_R2;
+package xzot1k.plugins.ds.nms.v1_20_R6;
 
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.network.PacketDataSerializer;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.network.syncher.DataWatcherSerializer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumItemSlot;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_19_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_20_R4.CraftRegistry;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R4.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -37,25 +42,6 @@ public class DPacket implements DisplayPacket {
 
     private static final AtomicInteger ENTITY_ID_COUNTER_FIELD = getAI();
     private static final Supplier<Integer> idGenerator = setGenerator();
-
-    private static AtomicInteger getAI() {
-        try {
-            for (Field field : Entity.class.getDeclaredFields()) {
-                if (field.getType() == AtomicInteger.class) {
-                    field.setAccessible(true);
-                    return ((AtomicInteger) field.get(null));
-                }
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return new AtomicInteger();
-    }
-
-    private static Supplier<Integer> setGenerator() {
-        return Objects.requireNonNull(ENTITY_ID_COUNTER_FIELD)::incrementAndGet;
-    }
-
     private final DisplayShops INSTANCE;
     private final Collection<Integer> entityIds = new ArrayList<>();
     private net.minecraft.world.item.ItemStack itemStack;
@@ -93,66 +79,48 @@ public class DPacket implements DisplayPacket {
                     final int id = idGenerator.get();
                     getEntityIds().add(id);
 
-                    PacketDataSerializer pds = buildSerializer(id, true, x, (y + 1.325) + offsetY, z);
-
-                    final PacketPlayOutSpawnEntity itemPacket = new PacketPlayOutSpawnEntity(pds);
+                    /*PacketPlayOutSpawnEntity itemPacket = new PacketPlayOutSpawnEntity(id, UUID.randomUUID(), x, (y + 1.325), z, 0, 0, EntityTypes.ag, 1, new Vec3D(0, 0, 0), 0);*/
+                    RegistryFriendlyByteBuf bd = buildSerializer(id, true, x, (y + 1.325), z);
+                    PacketPlayOutSpawnEntity itemPacket = PacketPlayOutSpawnEntity.a.decode(bd);
                     sendPacket(playerConnection, itemPacket);
 
-                    final DataWatcherSerializer<net.minecraft.world.item.ItemStack> ITEM_STACK_SERIALIZER = DataWatcherRegistry.h;
-                    final DataWatcherSerializer<Byte> BYTE_SERIALIZER = DataWatcherRegistry.a;
+                    RegistryFriendlyByteBuf bb = new RegistryFriendlyByteBuf(Unpooled.buffer(), CraftRegistry.getMinecraftRegistry());
+                    bb.c(id);
 
-                    PacketDataSerializer metaData = new PacketDataSerializer(Unpooled.buffer());
-                    metaData.d(id);
-                    metaData.writeByte(8); // key index
+                    writeEntry(bb, 8, itemStack); // add itemstack data
 
-                    int serializerTypeID = DataWatcherRegistry.b(ITEM_STACK_SERIALIZER);
-                    if (serializerTypeID < 0) return;
-
-                    metaData.d(serializerTypeID); // key serializer type id
-                    ITEM_STACK_SERIALIZER.a(metaData, itemStack);
-                    metaData.d(0xFF);
-
-                    PacketPlayOutEntityMetadata md = new PacketPlayOutEntityMetadata(metaData);
+                    bb.c(0xFF);
+                    PacketPlayOutEntityMetadata md = PacketPlayOutEntityMetadata.a.decode(bb);
                     sendPacket(playerConnection, md);
                     //</editor-fold>
 
                     //<editor-fold desc="Vehicle Mount Packets">
                     final int vehicleId = idGenerator.get();
                     getEntityIds().add(vehicleId);
-                    PacketDataSerializer vehicleData = buildSerializer(vehicleId, false, x, (y + 1.325) + offsetY, z);
-                    final PacketPlayOutSpawnEntity vehiclePacket = new PacketPlayOutSpawnEntity(vehicleData);
+                    RegistryFriendlyByteBuf vehicleData = buildSerializer(vehicleId, false, x, (y + 1.325), z);
+
+
+                    final PacketPlayOutSpawnEntity vehiclePacket = PacketPlayOutSpawnEntity.a.decode(vehicleData);
                     sendPacket(playerConnection, vehiclePacket);
 
-                    PacketDataSerializer vehiclePDS = new PacketDataSerializer(Unpooled.buffer());
-                    vehiclePDS.d(vehicleId);
+                    RegistryFriendlyByteBuf vehiclePDS = new RegistryFriendlyByteBuf(Unpooled.buffer(), CraftRegistry.getMinecraftRegistry());
+                    vehiclePDS.c(vehicleId);
 
-                    // invisibility
-                    vehiclePDS.writeByte(0); // key index
-                    serializerTypeID = DataWatcherRegistry.b(BYTE_SERIALIZER);
-                    if (serializerTypeID < 0) return;
+                    writeEntry(vehiclePDS, 0, (byte) 0x20); // invisibility
+                    writeEntry(vehiclePDS, 15, (byte) (0x01 | 0x02 | 0x08 | 0x10));  // small, no gravity, no base-plate marker, etc.
 
-                    vehiclePDS.d(serializerTypeID); // key serializer type id
-                    BYTE_SERIALIZER.a(vehiclePDS, (byte) 0x20);
+                    vehiclePDS.c(0xFF);
 
-                    // small, no gravity, no base-plate marker, etc.
-                    vehiclePDS.writeByte(15); // key index
-                    serializerTypeID = DataWatcherRegistry.b(BYTE_SERIALIZER);
-                    if (serializerTypeID < 0) return;
-
-                    vehiclePDS.d(serializerTypeID); // key serializer type id
-                    BYTE_SERIALIZER.a(vehiclePDS, (byte) (0x01 | 0x02 | 0x08 | 0x10));
-                    vehiclePDS.d(0xFF);
-
-                    PacketPlayOutEntityMetadata vehicleMD = new PacketPlayOutEntityMetadata(vehiclePDS);
+                    PacketPlayOutEntityMetadata vehicleMD = PacketPlayOutEntityMetadata.a.decode(vehiclePDS);
                     sendPacket(playerConnection, vehicleMD);
 
+                    RegistryFriendlyByteBuf mountData = new RegistryFriendlyByteBuf(Unpooled.buffer(), CraftRegistry.getMinecraftRegistry());
+                    ;
+                    mountData.c(vehicleId);
+                    mountData.c(1);
+                    mountData.c(id);
 
-                    PacketDataSerializer mountData = new PacketDataSerializer(Unpooled.buffer());
-                    mountData.d(vehicleId);
-                    mountData.d(1);
-                    mountData.d(id);
-
-                    PacketPlayOutMount mountPacket = new PacketPlayOutMount(mountData);
+                    PacketPlayOutMount mountPacket = PacketPlayOutMount.a.decode(mountData);
                     sendPacket(playerConnection, mountPacket);
                     //</editor-fold>
                 }
@@ -174,7 +142,6 @@ public class DPacket implements DisplayPacket {
 
         final String colorCode = INSTANCE.getConfig().getString("default-description-color");
         final boolean hidePriceLine = INSTANCE.getConfig().getBoolean("price-disabled-hide");
-
         y = (y + 1.9);
         for (int i = hologramFormat.size(); --i >= 0; ) {
             String line = hologramFormat.get(i);
@@ -205,25 +172,44 @@ public class DPacket implements DisplayPacket {
         }
     }
 
-    private PlayerConnection getPlayerConnection(@NotNull Player player) {
-        return ((CraftPlayer) player).getHandle().b;
+    private static AtomicInteger getAI() {
+        try {
+            for (Field field : Entity.class.getDeclaredFields()) {
+                if (field.getType() == AtomicInteger.class) {
+                    field.setAccessible(true);
+                    return ((AtomicInteger) field.get(null));
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return new AtomicInteger();
     }
 
-    private PacketDataSerializer buildSerializer(int id, boolean isItem, double x, double y, double z) {
-        PacketDataSerializer pds = new PacketDataSerializer(Unpooled.buffer());
+    private static Supplier<Integer> setGenerator() {
+        return Objects.requireNonNull(ENTITY_ID_COUNTER_FIELD)::incrementAndGet;
+    }
 
-        pds.d(id);
-        pds.a(UUID.randomUUID());
-        pds.d(isItem ? 45 : 2); // (item is 45, armor stand is 2, and slime is 83)
+    private PlayerConnection getPlayerConnection(@NotNull Player player) {
+        return ((CraftPlayer) player).getHandle().c;
+    }
+
+    private RegistryFriendlyByteBuf buildSerializer(int id, boolean isItem, double x, double y, double z) {
+        RegistryFriendlyByteBuf pds = new RegistryFriendlyByteBuf(Unpooled.buffer(), CraftRegistry.getMinecraftRegistry());
+
+        pds.c(id); // ENTITY_ID
+        pds.a(UUID.randomUUID()); // UUID
+        ByteBufCodecs.a(Registries.v).encode(pds, isItem ? EntityTypes.ag : EntityTypes.d);// ENTITY TYPE
 
         // Position
-        pds.writeDouble(x);
-        pds.writeDouble(y);
-        pds.writeDouble(z);
+        pds.writeDouble(x); //X
+        pds.writeDouble(y); //Y
+        pds.writeDouble(z); //Z
 
         // Rotation
-        pds.writeByte(0);
-        pds.writeByte(0);
+        pds.writeByte(0); //PITCH
+        pds.writeByte(0); //YAW
+        pds.writeByte(0); //HEAD_YAW
 
         // Object Data
         pds.writeInt(isItem ? 1 : 0);
@@ -238,72 +224,68 @@ public class DPacket implements DisplayPacket {
 
     private void createStand(@NotNull PlayerConnection playerConnection, double x, double y, double z,
                              @NotNull String name, boolean glassHead) {
-
         final int id = idGenerator.get();
         getEntityIds().add(id);
 
-        final PacketDataSerializer pds = buildSerializer(id, false, x, y, z);
-        final PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(pds);
+        final RegistryFriendlyByteBuf pds = buildSerializer(id, false, x, y, z);
+        final PacketPlayOutSpawnEntity spawnPacket = PacketPlayOutSpawnEntity.a.decode(pds);
         sendPacket(playerConnection, spawnPacket);
-
-        final DataWatcherSerializer<Byte> BYTE_SERIALIZER = DataWatcherRegistry.a;
-        final DataWatcherSerializer<Boolean> BOOLEAN_SERIALIZER = DataWatcherRegistry.j;
-        final DataWatcherSerializer<Optional<IChatBaseComponent>> OPTIONAL_CHAT_COMPONENT_SERIALIZER = DataWatcherRegistry.g;
 
         if (glassHead) {
             itemStack = CraftItemStack.asNMSCopy(new ItemStack(Material.GLASS));
             if (itemStack != null) {
                 List<Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>> list = new ArrayList<>();
-                list.add(new Pair<>(EnumItemSlot.f /*HEAD or HELMET*/, itemStack));
+                list.add(new Pair<>(EnumItemSlot.f, itemStack));
                 PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(id, list);
                 sendPacket(playerConnection, packet);
             }
         }
 
-        PacketDataSerializer metaData = new PacketDataSerializer(Unpooled.buffer());
-        metaData.d(id);
+        RegistryFriendlyByteBuf metaData = new RegistryFriendlyByteBuf(Unpooled.buffer(), CraftRegistry.getMinecraftRegistry());
+        metaData.c(id);
 
-        // invisibility
-        metaData.writeByte(0); // entity status index (BYTE_SERIALIZER)
-        int serializerTypeID = DataWatcherRegistry.b(BYTE_SERIALIZER);
-        if (serializerTypeID >= 0) {
-            metaData.d(serializerTypeID);
-            BYTE_SERIALIZER.a(metaData, (byte) 0x20);
-        }
-
-        // small, no gravity, no base-plate marker, etc.
-        metaData.writeByte(15); // armor stand status index (BYTE_SERIALIZER)
-        serializerTypeID = DataWatcherRegistry.b(BYTE_SERIALIZER);
-        if (serializerTypeID >= 0) {
-            metaData.d(serializerTypeID);
-            BYTE_SERIALIZER.a(metaData, (glassHead ? (byte) (0x02 | 0x08 | 0x10) : (byte) (0x01 | 0x02 | 0x08 | 0x10)));
-        }
+        writeEntry(metaData, 0, (byte) 0x20); // invisibility
+        writeEntry(metaData, 15, (glassHead ? (byte) (0x02 | 0x08 | 0x10) : (byte) (0x01 | 0x02 | 0x08 | 0x10)));  // small, no gravity, no base-plate marker, etc.
 
         if (!name.isEmpty()) {
-            name = name.substring(0, Math.min(name.length(), 5000));
+            name = name.substring(0, Math.min(name.length(), 5000)); // set name limit
 
             // set custom name
-            metaData.writeByte(2); // custom name index (OPTIONAL_CHAT_COMPONENT_SERIALIZER)
-            serializerTypeID = DataWatcherRegistry.b(OPTIONAL_CHAT_COMPONENT_SERIALIZER);
-            if (serializerTypeID >= 0) {
-                metaData.d(serializerTypeID);
-                OPTIONAL_CHAT_COMPONENT_SERIALIZER.a(metaData, Optional.of(CraftChatMessage.fromString(DisplayShops
-                        .getPluginInstance().getManager().color(name), false, true)[0]));
-            }
-
-            // set name visibility
-            metaData.writeByte(3); // custom name visibility index (BOOLEAN_SERIALIZER)
-            serializerTypeID = DataWatcherRegistry.b(BOOLEAN_SERIALIZER);
-            if (serializerTypeID >= 0) {
-                metaData.d(serializerTypeID); // key serializer type id
-                BOOLEAN_SERIALIZER.a(metaData, true);
-            }
+            writeEntry(metaData, 2, Optional.of(CraftChatMessage.fromString(DisplayShops.getPluginInstance().getManager().color(name), false, true)[0])); // set name
+            writeEntry(metaData, 3, true); // set name visibility
         }
 
-        metaData.d(0xFF);
+        metaData.writeByte(0xFF);
 
-        PacketPlayOutEntityMetadata md = new PacketPlayOutEntityMetadata(metaData);
+
+        PacketPlayOutEntityMetadata md = PacketPlayOutEntityMetadata.a.decode(metaData);
         sendPacket(playerConnection, md);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void writeEntry(@NotNull RegistryFriendlyByteBuf serializer, int id, Object value) { // data watcher entry
+        serializer.writeByte(id);
+        final DataWatcherSerializer<net.minecraft.world.item.ItemStack> ITEM_STACK_SERIALIZER = DataWatcherRegistry.h;
+        final DataWatcherSerializer<Byte> BYTE_SERIALIZER = DataWatcherRegistry.a;
+        final DataWatcherSerializer<Boolean> BOOLEAN_SERIALIZER = DataWatcherRegistry.k;
+        final DataWatcherSerializer<Optional<IChatBaseComponent>> OPTIONAL_CHAT_COMPONENT_SERIALIZER = DataWatcherRegistry.g;
+
+        DataWatcherSerializer<?> dataWatcherRegistry = (id == 2 ? OPTIONAL_CHAT_COMPONENT_SERIALIZER : id == 3 ? BOOLEAN_SERIALIZER
+                : id == 8 ? ITEM_STACK_SERIALIZER : BYTE_SERIALIZER);
+        int serializerTypeID = DataWatcherRegistry.b(dataWatcherRegistry); // BYTE_SERIALIZER is 0 or 15
+
+        if (serializerTypeID >= 0) {
+            serializer.c(serializerTypeID);
+
+            if (id == 2)
+                ComponentSerialization.c.encode(serializer, (Optional<IChatBaseComponent>) value);
+            else if (id == 3)
+                ByteBufCodecs.b.encode(serializer, (Boolean) value);
+            else if (id == 8)
+                net.minecraft.world.item.ItemStack.i.encode(serializer, (net.minecraft.world.item.ItemStack) value);
+            else
+                ByteBufCodecs.c.encode(serializer, (Byte) value);
+        }
     }
 
     public void hide(@NotNull Player player) {
@@ -317,11 +299,10 @@ public class DPacket implements DisplayPacket {
     }
 
     public void sendPacket(@NotNull PlayerConnection playerConnection, @NotNull Packet<?> packet) {
-        playerConnection.b.a(packet);
+        playerConnection.b(packet);
     }
 
     public Collection<Integer> getEntityIds() {
         return entityIds;
     }
-
 }

@@ -1,13 +1,13 @@
-package xzot1k.plugins.ds.nms.v1_21_R1;
+package xzot1k.plugins.ds.nms.v1_21_R3;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.component.CustomData;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -34,29 +34,27 @@ public class VUtil implements VersionUtil {
     @Override
     public String getNBT(@NotNull ItemStack itemStack, @NotNull String nbtTag) {
         final net.minecraft.world.item.ItemStack item = CraftItemStack.asNMSCopy(itemStack);
-        if (item.e()) {
+        if (item.isEmpty()) {
             return null;
         }
-        CustomData data = item.a(DataComponents.b);
-        if (data != null) {
-            return data.c().l(nbtTag);
+        CustomData data = item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        try {
+            return data.copyTag().getString(nbtTag);
+        } catch (Exception e) {
+            return null;
         }
-        return null;
     }
 
     @Override
     public ItemStack updateNBT(@NotNull ItemStack itemStack, @NotNull String nbtTag, @NotNull String value) {
         final net.minecraft.world.item.ItemStack item = CraftItemStack.asNMSCopy(itemStack);
-        if (item.e()) {
+        if (item.isEmpty()) {
             return CraftItemStack.asBukkitCopy(item);
         }
-        CustomData d = item.a(DataComponents.b);
-        NBTTagCompound nbt = new NBTTagCompound();
-        if (d != null) {
-            nbt = d.c();
-        }
-        nbt.a(nbtTag, value);
-        item.b(DataComponents.b, CustomData.a(nbt));
+        CustomData d = item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag nbt = new CompoundTag();
+        nbt.putString(nbtTag, value);
+        item.set(DataComponents.CUSTOM_DATA, CustomData.of(nbt));
         return CraftItemStack.asBukkitCopy(item);
     }
 

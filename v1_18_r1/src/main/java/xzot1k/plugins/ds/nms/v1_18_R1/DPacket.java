@@ -322,10 +322,16 @@ public class DPacket implements DisplayPacket {
         playerConnection.a /*NetworkManager*/.a(packet); // sendPacket()
     }
 
-    private DisplayShops getPluginInstance() {return pluginInstance;}
+    private DisplayShops getPluginInstance() {
+        return pluginInstance;
+    }
 
-    private void setPluginInstance(DisplayShops pluginInstance) {this.pluginInstance = pluginInstance;}
+    private void setPluginInstance(DisplayShops pluginInstance) {
+        this.pluginInstance = pluginInstance;
+    }
 
-    public Collection<Integer> getEntityIds() {return entityIds;}
+    public Collection<Integer> getEntityIds() {
+        return entityIds;
+    }
 
 }

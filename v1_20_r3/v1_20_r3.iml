@@ -6,10 +6,9 @@
         <autoDetectTypes>
           <platformType>MCP</platformType>
           <platformType>SPIGOT</platformType>
-          <platformType>BUNGEECORD</platformType>
-          <platformType>BUKKIT</platformType>
           <platformType>PAPER</platformType>
           <platformType>ADVENTURE</platformType>
+          <platformType>BUKKIT</platformType>
         </autoDetectTypes>
         <projectReimportVersion>1</projectReimportVersion>
       </configuration>

@@ -286,7 +286,11 @@ public class DPacket implements DisplayPacket {
         }
     }
 
-    public void sendPacket(@NotNull PlayerConnection playerConnection, @NotNull Packet<?> packet) {playerConnection.b(packet);}
+    public void sendPacket(@NotNull PlayerConnection playerConnection, @NotNull Packet<?> packet) {
+        playerConnection.b(packet);
+    }
 
-    public Collection<Integer> getEntityIds() {return entityIds;}
+    public Collection<Integer> getEntityIds() {
+        return entityIds;
+    }
 }

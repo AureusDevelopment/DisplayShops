@@ -38,7 +38,7 @@ public class DPacket implements DisplayPacket {
     private static final AtomicInteger ENTITY_ID_COUNTER_FIELD = getAI();
     private static final Supplier<Integer> idGenerator = setGenerator();
 
-   private static AtomicInteger getAI() {
+    private static AtomicInteger getAI() {
         try {
             for (Field field : Entity.class.getDeclaredFields()) {
                 if (field.getType() == AtomicInteger.class) {
@@ -317,10 +317,16 @@ public class DPacket implements DisplayPacket {
         playerConnection.a /*NetworkManager*/.a(packet); // sendPacket()
     }
 
-    private DisplayShops getPluginInstance() {return pluginInstance;}
+    private DisplayShops getPluginInstance() {
+        return pluginInstance;
+    }
 
-    private void setPluginInstance(DisplayShops pluginInstance) {this.pluginInstance = pluginInstance;}
+    private void setPluginInstance(DisplayShops pluginInstance) {
+        this.pluginInstance = pluginInstance;
+    }
 
-    public Collection<Integer> getEntityIds() {return entityIds;}
+    public Collection<Integer> getEntityIds() {
+        return entityIds;
+    }
 
 }

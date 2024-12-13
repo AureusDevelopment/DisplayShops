@@ -287,7 +287,9 @@ public class DPacket implements DisplayPacket {
         }
     }
 
-    public void sendPacket(@NotNull PlayerConnection playerConnection, @NotNull Packet<?> packet) {playerConnection.a().sendPacket(packet);}
+    public void sendPacket(@NotNull PlayerConnection playerConnection, @NotNull Packet<?> packet) {
+        playerConnection.a().sendPacket(packet);
+    }
 
     private DisplayShops getPluginInstance() {
         return this.pluginInstance;
