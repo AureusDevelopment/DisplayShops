@@ -7,10 +7,7 @@ package xzot1k.plugins.ds;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.devtec.shared.Ref;
 import me.devtec.shared.versioning.VersionUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -26,6 +23,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xzot1k.plugins.ds.api.DManager;
 import xzot1k.plugins.ds.api.VersionUtil;
 import xzot1k.plugins.ds.api.enums.FoliaScheduler;
@@ -67,6 +66,7 @@ import java.util.stream.Stream;
 
 public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
 
+    private static final Logger log = LoggerFactory.getLogger(DisplayShops.class);
     // Main handlers
     private static DisplayShops pluginInstance;
     private DManager manager;
@@ -118,6 +118,19 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         DisplayShops.pluginInstance = this;
         saveDefaultConfigs();
         saveDefaultMenuConfigs();
+
+        List<String> list = new ArrayList<>(Arrays.asList(
+                "________________________________________________________________",
+                "  ____  _           _             ____  _                     ",
+                " |  _ \\(_)___ _ __ | | __ _ _   _/ ___|| |__   ___  _ __  ___ ",
+                " | | | | / __| '_ \\| |/ _` | | | \\___ \\| '_ \\ / _ \\| '_ \\/ __|",
+                " | |_| | \\__ \\ |_) | | (_| | |_| |___) | | | | (_) | |_) \\__ \\",
+                " |____/|_|___/ .__/|_|\\__,_|\\__, |____/|_| |_|\\___/| .__/|___/",
+                "             |_|            |___/                  |_|        ",
+                "________________________________________________________________"));
+        for(String a:list){
+            Bukkit.getConsoleSender().sendMessage(a);
+        }
 
         try {
             Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? Ref.ServerType.PAPER : Ref.ServerType.SPIGOT : Ref.ServerType.BUKKIT,
@@ -780,6 +793,10 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         getServer().getLogger().log(level, "[" + getDescription().getName() + "] " + message);
     }
 
+    public void logColor(String message){
+        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',message));
+    }
+
     public void runEventCommands(String eventName, Player player) {
         if (player == null) return;
         for (String command : getConfig().getStringList("event-commands." + eventName))
@@ -892,6 +909,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         }
     }
 
+
     // version-based methods
     private void setup() throws ClassNotFoundException {
         if (getDisplayManager() != null) {
@@ -903,22 +921,25 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             String version = Ref.serverVersion().replace(".", "_");
             if (!version.startsWith("v"))
                 version = "v" + version;
-
+            logColor("&aTrying reflective version of: &e" + version);
             Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".VUtil");
             versionUtil = (VersionUtil) vUtilClass.getDeclaredConstructor().newInstance();
             displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".DPacket");
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException |
                  ClassNotFoundException e) {
+            logColor("&cVersion failed... Trying other method!");
             String version = Ref.serverVersion().replace(".", "_");
             if (!version.startsWith("v"))
                 version = "v" + version;
             String[] split = version.split("_");
 
-            version = split[0] + "_" + split[1] + "_R" + split[2];
+            version = split[0] + "_" + split[1] + "_R" + (Integer.parseInt(split[2]) - 1);
+            logColor("&bTrying reflective version of: &e" + version);
             try {
                 Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".VUtil");
                 versionUtil = (VersionUtil) vUtilClass.getDeclaredConstructor().newInstance();
                 displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".DPacket");
+                logColor("&aSuccess! Using reflective version of: " + version);
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
                      NoSuchMethodException e2) {
                 e2.printStackTrace();
