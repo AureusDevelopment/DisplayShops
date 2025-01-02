@@ -76,15 +76,21 @@ public class Listeners implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlaceCheck(BlockPlaceEvent e) {
 
         // TODO fix ItemsAdder
         // System.out.println(e.getItemInHand());
         // System.out.println(creationItem);
 
-        final boolean cancelEvent = shopCreationWorks(e.getPlayer(), e.getBlock(), e.getItemInHand());
-        if (cancelEvent) e.setCancelled(true);
+        Pair<Boolean, Boolean> pair = shopCreationWorks(e.getPlayer(),e.getBlock(),e.getItemInHand());
+        if (pair.getKey()) { //DENY the event
+            e.setCancelled(true);
+        }
+        if(pair.getValue()) { //ALLOW the event
+            e.setCancelled(false);
+            e.setBuild(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -1088,20 +1094,20 @@ public class Listeners implements Listener {
         return (nbtResult != null && nbtResult.equals("Creation Item"));
     }
 
-    public boolean shopCreationWorks(@NotNull Player player, @NotNull Block block, @NotNull ItemStack itemStack) {
+    public Pair<Boolean,Boolean> shopCreationWorks(@NotNull Player player, @NotNull Block block, @NotNull ItemStack itemStack) {
 
         if (!isCreationItem(itemStack)) {
            /* if(getPluginInstance().isItemAdderInstalled()) {
                 dev.lone.itemsadder.api.CustomBlock customBlock = dev.lone.itemsadder.api.CustomBlock.byItemStack(itemStack);
             }*/
-            return false;
+            return new Pair<>(false,false);
         }
 
         if (!player.hasPermission("displayshops.create")) {
             String message = getPluginInstance().getLangConfig().getString("no-permission");
             if (message != null && !message.equalsIgnoreCase(""))
                 getPluginInstance().getManager().sendMessage(player, message);
-            return true;
+            return new Pair<>(true,false);
         }
 
         Block blockRelativeOne = block.getRelative(BlockFace.UP), blockRelativeTwo = blockRelativeOne.getRelative(BlockFace.UP);
@@ -1109,14 +1115,14 @@ public class Listeners implements Listener {
             String message = getPluginInstance().getLangConfig().getString("relative-unsafe-world");
             if (message != null && !message.equalsIgnoreCase(""))
                 getPluginInstance().getManager().sendMessage(player, message);
-            return true;
+            return new Pair<>(true,false);
         }
 
         if (getPluginInstance().getManager().isBlockedWorld(block.getWorld())) {
             String message = getPluginInstance().getLangConfig().getString("blocked-world");
             if (message != null && !message.equalsIgnoreCase(""))
                 getPluginInstance().getManager().sendMessage(player, message);
-            return true;
+            return new Pair<>(true,false);
         }
 
         if (getPluginInstance().isTownyInstalled()) {
@@ -1126,24 +1132,34 @@ public class Listeners implements Listener {
                 String message = this.getPluginInstance().getLangConfig().getString("towny-no-access");
                 if (message != null && !message.equalsIgnoreCase(""))
                     getPluginInstance().getManager().sendMessage(player, message);
-                return true;
+                return new Pair<>(true,false);
             }
+        }
+        boolean allowEvent=false;
+        if (getPluginInstance().getWorldGuardHandler().getWorldGuard().isPresent() && getPluginInstance().getConfig().getBoolean("worldguard-integration")) {
+            if (getPluginInstance().getWorldGuardHandler().handleShop(player, block)) {
+                if (!player.hasPermission("displayshops.wg_bypass")) {
+                    return new Pair<>(true,false);
+                }
+            }
+            allowEvent = true;
         }
 
         ShopCreationEvent shopCreationEvent = new ShopCreationEvent(player, block.getLocation());
         getPluginInstance().getServer().getPluginManager().callEvent(shopCreationEvent);
-        if (shopCreationEvent.isCancelBlockPlaceEvent()) return true;
-        if (shopCreationEvent.isCancelled()) return false;
+        if (shopCreationEvent.isCancelBlockPlaceEvent()) return new Pair<>(true,false);
+        if (shopCreationEvent.isCancelled()) return new Pair<>(false,false);
 
         Shop shopCheck = getPluginInstance().getManager().getShop(block.getLocation());
-        if (shopCheck != null || isTooClose(player, block, itemStack, false)) return true;
+        if (shopCheck != null || isTooClose(player, block, itemStack, false)) return new Pair<>(false,false);
 
         if (getPluginInstance().getManager().isBlockedMaterial(block.getRelative(BlockFace.DOWN).getType())) {
             if (player.getInventory().firstEmpty() == -1)
                 player.getWorld().dropItemNaturally(player.getLocation(), getPluginInstance().getManager().buildShopCreationItem(player, 1));
             else player.getInventory().addItem(getPluginInstance().getManager().buildShopCreationItem(player, 1));
-            return true;
+            return new Pair<>(true,false);
         }
+
 
         MarketRegion marketRegion = getPluginInstance().getManager().getMarketRegion(block.getLocation());
         if (marketRegion != null) {
@@ -1179,7 +1195,7 @@ public class Listeners implements Listener {
         } else block.getRelative(BlockFace.UP).breakNaturally();
 
         getPluginInstance().getManager().createShop(player, block, 1, true, true);
-        return false;
+        return new Pair<>(false,allowEvent);
     }
 
     // getters & setters

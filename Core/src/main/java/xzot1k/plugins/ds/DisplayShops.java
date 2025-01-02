@@ -104,12 +104,18 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     private FileConfiguration langConfig;
     private File langFile, loggingFile;
     private HashMap<String, Menu> menuMap;
+    private WorldGuardHandler worldGuardHandler;
 
     /**
      * @return Returns the plugin's instance.
      */
     public static DisplayShops getPluginInstance() {
         return pluginInstance;
+    }
+
+    @Override
+    public void onLoad() {
+        worldGuardHandler = new WorldGuardHandler(this);
     }
 
     @Override
@@ -195,7 +201,6 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
 
         setPrismaInstalled(getServer().getPluginManager().getPlugin("Prisma") != null);
 
-        new WorldGuardHandler(this);
         registerWorldEditEvents();
 
         Plugin hdb = getServer().getPluginManager().getPlugin("HeadDatabase");
@@ -1477,6 +1482,10 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
 
     public List<UUID> getTeleportingPlayers() {
         return teleportingPlayers;
+    }
+
+    public WorldGuardHandler getWorldGuardHandler() {
+        return worldGuardHandler;
     }
 
     /**
