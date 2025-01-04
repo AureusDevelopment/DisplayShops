@@ -21,10 +21,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumItemSlot;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_21_R1.CraftRegistry;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_21_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_21_R2.CraftRegistry;
+import org.bukkit.craftbukkit.v1_21_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_21_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_21_R2.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -191,7 +191,7 @@ public class DPacket implements DisplayPacket {
     }
 
     private PlayerConnection getPlayerConnection(@NotNull Player player) {
-        return ((CraftPlayer) player).getHandle().c;
+        return ((CraftPlayer) player).getHandle().f;
     }
 
     private RegistryFriendlyByteBuf buildSerializer(int id, boolean isItem, double x, double y, double z) {
@@ -282,7 +282,7 @@ public class DPacket implements DisplayPacket {
             else if (id == 3)
                 ByteBufCodecs.b.encode(serializer, (Boolean) value);
             else if (id == 8)
-                net.minecraft.world.item.ItemStack.i.encode(serializer, (net.minecraft.world.item.ItemStack) value);
+                net.minecraft.world.item.ItemStack.g.encode(serializer, (net.minecraft.world.item.ItemStack) value);
             else
                 ByteBufCodecs.c.encode(serializer, (Byte) value);
         }

@@ -7,7 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.item.component.CustomData;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_21_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +34,7 @@ public class VUtil implements VersionUtil {
     @Override
     public String getNBT(@NotNull ItemStack itemStack, @NotNull String nbtTag) {
         final net.minecraft.world.item.ItemStack item = CraftItemStack.asNMSCopy(itemStack);
-        if (item.e()) {
+        if (item.f()) {
             return null;
         }
         CustomData data = item.a(DataComponents.b);
@@ -47,7 +47,7 @@ public class VUtil implements VersionUtil {
     @Override
     public ItemStack updateNBT(@NotNull ItemStack itemStack, @NotNull String nbtTag, @NotNull String value) {
         final net.minecraft.world.item.ItemStack item = CraftItemStack.asNMSCopy(itemStack);
-        if (item.e()) {
+        if (item.f()) {
             return CraftItemStack.asBukkitCopy(item);
         }
         CustomData d = item.a(DataComponents.b);
