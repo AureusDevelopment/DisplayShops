@@ -9,19 +9,18 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>v1_21_r3</artifactId>
+    <artifactId>v1_21_r4</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>ca.bkaw</groupId>
             <artifactId>paper-nms</artifactId>
-            <version>1.21.3-SNAPSHOT</version>
+            <version>1.21.4-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -51,5 +50,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

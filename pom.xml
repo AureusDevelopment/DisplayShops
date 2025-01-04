@@ -9,35 +9,50 @@
     <version>1.0</version>
     <packaging>pom</packaging>
     <modules>
-        <module>v1_21_r1</module>
-        <module>v1_20_r4</module>
-        <module>v1_20_r3</module>
-        <module>v1_20_r2</module>
-        <module>v1_20_r1</module>
-        <module>v1_19_r3</module>
-        <module>v1_19_r2</module>
-        <module>v1_19_r1</module>
-        <module>v1_18_r2</module>
-        <module>v1_18_r1</module>
-        <module>v1_17_r1</module>
-        <module>v1_16_r3</module>
-        <module>v1_16_r2</module>
-        <module>v1_16_r1</module>
-        <module>v1_15_r1</module>
-        <module>v1_14_r1</module>
-        <module>v1_13_r2</module>
-        <module>v1_13_r1</module>
-        <module>v1_12_r1</module>
-        <module>v1_11_r1</module>
-        <module>v1_10_r1</module>
-        <module>v1_9_r2</module>
-        <module>v1_9_r1</module>
-        <module>v1_8_r3</module>
+        <!--Core-->
         <module>Core</module>
-        <module>v1_21</module>
+        <!--1.8-->
+        <module>v1_8_r3</module>
+        <!--1.9-->
+        <module>v1_9_r1</module>
+        <module>v1_9_r2</module>
+        <!--1.10-->
+        <module>v1_10_r1</module>
+        <!--1.11-->
+        <module>v1_11_r1</module>
+        <!--1.12-->
+        <module>v1_12_r1</module>
+        <!--1.13-->
+        <module>v1_13_r1</module>
+        <module>v1_13_r2</module>
+        <!--1.14-->
+        <module>v1_14_r1</module>
+        <!--1.15-->
+        <module>v1_15_r1</module>
+        <!--1.16-->
+        <module>v1_16_r1</module>
+        <module>v1_16_r2</module>
+        <module>v1_16_r3</module>
+        <!--1.17-->
+        <module>v1_17_r1</module>
+        <!--1.18-->
+        <module>v1_18_r1</module>
+        <module>v1_18_r2</module>
+        <!--1.19-->
+        <module>v1_19_r1</module>
+        <module>v1_19_r2</module>
+        <module>v1_19_r3</module>
+        <!--1.20-->
+        <module>v1_20_r1</module>
+        <module>v1_20_r2</module>
+        <module>v1_20_r3</module>
+        <module>v1_20_r4</module>
         <module>v1_20_r6</module>
+        <!--1.21-->
+        <module>v1_21</module>
         <module>v1_21_r2</module>
         <module>v1_21_r3</module>
+        <module>v1_21_r4</module>
     </modules>
 
     <properties>

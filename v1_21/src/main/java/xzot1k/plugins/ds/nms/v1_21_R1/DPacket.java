@@ -2,7 +2,7 @@
  * Copyright (c) 2021 XZot1K, All rights reserved.
  */
 
-package xzot1k.plugins.ds.nms.v1_21;
+package xzot1k.plugins.ds.nms.v1_21_R1;
 
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;

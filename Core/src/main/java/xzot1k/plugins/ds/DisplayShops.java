@@ -115,7 +115,9 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
 
     @Override
     public void onLoad() {
-        worldGuardHandler = new WorldGuardHandler(this);
+        if(Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
+            worldGuardHandler = new WorldGuardHandler(this);
+        }
     }
 
     @Override
@@ -281,6 +283,44 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     public static int itemBuys = 0;
     public static int placeholderAPI;
     public static boolean isSQL = false;
+
+    private static final HashMap<String,String> versionRewrites = new HashMap<>();
+    static {
+        versionRewrites.put("1.8-R0.1-SNAPSHOT", "v1_8_R1");
+        versionRewrites.put("1.8.3-R0.1-SNAPSHOT", "v1_8_R2");
+        versionRewrites.put("1.8.8-R0.1-SNAPSHOT", "v1_8_R3");
+        versionRewrites.put("1.9-R0.1-SNAPSHOT", "v1_9_R1");
+        versionRewrites.put("1.9.4-R0.1-SNAPSHOT", "v1_9_R2");
+        versionRewrites.put("1.10-R0.1-SNAPSHOT", "v1_10_R1");
+        versionRewrites.put("1.11-R0.1-SNAPSHOT", "v1_11_R1");
+        versionRewrites.put("1.12-R0.1-SNAPSHOT", "v1_12_R1");
+        versionRewrites.put("1.13-R0.1-SNAPSHOT", "v1_13_R1");
+        versionRewrites.put("1.13.2-R0.1-SNAPSHOT", "v1_13_R2");
+        versionRewrites.put("1.14-R0.1-SNAPSHOT", "v1_14_R1");
+        versionRewrites.put("1.15-R0.1-SNAPSHOT", "v1_15_R1");
+        versionRewrites.put("1.16-R0.1-SNAPSHOT", "v1_16_R1");
+        versionRewrites.put("1.16.2-R0.1-SNAPSHOT", "v1_16_R2");
+        versionRewrites.put("1.16.5-R0.1-SNAPSHOT", "v1_16_R3");
+        versionRewrites.put("1.17-R0.1-SNAPSHOT", "v1_17_R1");
+        versionRewrites.put("1.18-R0.1-SNAPSHOT", "v1_18_R1");
+        versionRewrites.put("1.18.2-R0.1-SNAPSHOT", "v1_18_R2");
+        versionRewrites.put("1.19-R0.1-SNAPSHOT", "v1_19_R1");
+        versionRewrites.put("1.19.2-R0.1-SNAPSHOT", "v1_19_R2");
+        versionRewrites.put("1.20-R0.1-SNAPSHOT", "v1_20_R1");
+        versionRewrites.put("1.20.2-R0.1-SNAPSHOT", "v1_20_R2");
+
+        // 1.21 Versions
+        versionRewrites.put("1.21-R0.1-SNAPSHOT", "v1_21_R0");
+        versionRewrites.put("1.21.1-R0.1-SNAPSHOT", "v1_21_R1");
+        versionRewrites.put("1.21.2-R0.1-SNAPSHOT", "v1_21_R2");
+        versionRewrites.put("1.21.3-R0.1-SNAPSHOT", "v1_21_R3");
+        versionRewrites.put("1.21.4-R0.1-SNAPSHOT", "v1_21_R4");
+
+    }
+
+    private String getVersionRewrite(String a){
+        return versionRewrites.getOrDefault(a,"v1_21_R4");
+    }
 
     public static void ClearAllEntities() {
         for (World world : DisplayShops.getPluginInstance().getServer().getWorlds()) {
@@ -938,7 +978,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                 version = "v" + version;
             String[] split = version.split("_");
 
-            version = split[0] + "_" + split[1] + "_R" + (Integer.parseInt(split[2]) - 1);
+            version = split[0] + "_" + split[1] + "_R" + (split.length==3?Integer.parseInt(split[2]):1);
             logColor("&bTrying reflective version of: &e" + version);
             try {
                 Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".VUtil");
@@ -947,7 +987,18 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                 logColor("&aSuccess! Using reflective version of: " + version);
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
                      NoSuchMethodException e2) {
-                e2.printStackTrace();
+                // LAST OPTION - VERSION REWRITE
+                logColor("&cThat failed... Trying last resort - version rewrite!");
+                String versionString = getVersionRewrite(Bukkit.getServer().getBukkitVersion());
+                logColor("&dTrying reflective version of: &e"+versionString);
+                try {
+                    Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + versionString + ".VUtil");
+                    versionUtil = (VersionUtil) vUtilClass.getDeclaredConstructor().newInstance();
+                    displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + versionString + ".DPacket");
+                    logColor("&aSuccess! Version rewrite worked! Version: " + Bukkit.getServer().getBukkitVersion()+" -> "+versionString);
+                } catch (Exception b) {
+                    b.printStackTrace();
+                }
             }
         }
 
