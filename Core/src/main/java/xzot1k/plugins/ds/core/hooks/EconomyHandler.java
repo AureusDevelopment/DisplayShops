@@ -502,12 +502,15 @@ public class EconomyHandler implements EcoHandler {
             }
 
             final int itemForItemBalance = getItemForItemBalance(player, shop, economyCallType);
-            if (itemForItemBalance > -1) return (itemForItemBalance >= amount);
+            if (itemForItemBalance > -1)
+                return (itemForItemBalance >= amount);
         }
 
         final EcoHook ecoHook = INSTANCE.getEconomyHandler().getEcoHook(shop != null ? shop.getCurrencyType() : getDefaultCurrency());
-        if (ecoHook != null) return (ecoHook.getBalance(player.getUniqueId()) >= amount);
-        else return false;
+        if (ecoHook != null)
+            return (ecoHook.getBalance(player.getUniqueId()) >= amount);
+        else
+            return false;
     }
 
     /**
@@ -559,7 +562,8 @@ public class EconomyHandler implements EcoHandler {
                 final String forcedEconomyCall = getForcedEconomyCall(economyCallType[0]);
                 if (forcedEconomyCall != null && !forcedEconomyCall.isEmpty() && !forcedEconomyCall.equals("item-for-item")) {
                     final EcoHook ecoHook = INSTANCE.getEconomyHandler().getEcoHook(forcedEconomyCall);
-                    if (ecoHook != null) return ecoHook.withdraw(player.getUniqueId(), amount);
+                    if (ecoHook != null)
+                        return ecoHook.withdraw(player.getUniqueId(), amount);
                 }
             }
 

@@ -130,9 +130,10 @@ public class VisitItemTask extends BukkitRunnable {
                                     add(INSTANCE.getManager().color(line.replace("{enchants}", (INSTANCE.getManager().getTranslatedName(entry.getKey())
                                             + " " + INSTANCE.getManager().getRomanNumeral(entry.getValue())))));
                         } else if (!shop.getShopItem().getEnchantments().isEmpty()) {
-                            for (Map.Entry<Enchantment, Integer> entry : shop.getShopItem().getEnchantments().entrySet())
+                            for (Map.Entry<Enchantment, Integer> entry : shop.getShopItem().getEnchantments().entrySet()) {
                                 add(INSTANCE.getManager().color(line.replace("{enchants}", (INSTANCE.getManager().getTranslatedName(entry.getKey()) + " "
                                         + INSTANCE.getManager().getRomanNumeral(entry.getValue())))));
+                            }
                         }
 
                         if (shop.getShopItem().getType().name().contains("POTION")) {

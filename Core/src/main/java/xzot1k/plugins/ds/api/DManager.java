@@ -540,8 +540,9 @@ public class DManager implements Manager {
             Collection<String> keys = cs.getKeys(false);
             if (!keys.isEmpty())
                 for (String key : keys) {
-                    if (key.toUpperCase().replace(" ", "_").replace("-", "_").equalsIgnoreCase(enchantment.getName()))
+                    if (key.toUpperCase().replace(" ", "_").replace("-", "_").equalsIgnoreCase(enchantment.getName())) {
                         return cs.getString(key);
+                    }
                 }
         }
 
@@ -861,6 +862,7 @@ public class DManager implements Manager {
      * @param cleanUp Deletes all shops that have invalid data (Example: No longer existing worlds).
      */
     public void loadShops(boolean isAsync, boolean cleanUp) {
+
         List<String> shopsToDelete = new ArrayList<>();
         long loadedShops = 0, current = 0, shopCount = 0, shopCountPercentage = 0;
 
@@ -878,7 +880,6 @@ public class DManager implements Manager {
 
         Menu appearanceMenu = getPluginInstance().getMenu("appearance");
         String defaultAppearance = appearanceMenu.getConfiguration().getString("default-appearance");
-
         try (PreparedStatement preparedStatement = getPluginInstance().getDatabaseConnection().prepareStatement("SELECT * FROM shops;");
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
@@ -960,11 +961,13 @@ public class DManager implements Manager {
                     ItemStack shopItem, tradeItem;
                     shopItem = tradeItem = null;
 
-                    if (shopItemString != null && !shopItemString.equalsIgnoreCase(""))
+                    if (shopItemString != null && !shopItemString.equalsIgnoreCase("")) {
                         shopItem = getPluginInstance().toItem(shopItemString);
+                    }
 
-                    if (tradeItemString != null && !tradeItemString.equalsIgnoreCase(""))
+                    if (tradeItemString != null && !tradeItemString.equalsIgnoreCase("")) {
                         tradeItem = getPluginInstance().toItem(tradeItemString);
+                    }
 
                     if (appearance == null || appearance.isEmpty() || Appearance.getAppearance(appearance) == null)
                         appearance = (defaultAppearance != null ? defaultAppearance : "Default");
@@ -1587,13 +1590,30 @@ public class DManager implements Manager {
      * @param text The long string to wrap.
      * @return wraps the string to multiple lines
      */
+
     public List<String> wrapString(@NotNull String text) {
         List<String> lines = new ArrayList<>();
-        final int longWordCount = getPluginInstance().getConfig().getInt("description-long-word-wrap");
-        String regex = "((?:\\([^)]*\\)|\\b(?:[a-zA-Z]+\\s*(?:[IVXLCDM]+)?|[IVXLCDM]+)\\b[.,;:!\\-]?\\s*){1," + longWordCount + "})";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(text);
-        while (matcher.find()) lines.add(matcher.group(1).trim());
+        int longWordCount = getPluginInstance().getConfig().getInt("description-long-word-wrap");
+
+        String[] words = text.split("\\s+"); // split by any whitespace
+        StringBuilder currentLine = new StringBuilder();
+        int wordCounter = 0;
+
+        for (String word : words) {
+            if (wordCounter >= longWordCount) {
+                lines.add(currentLine.toString().trim());
+                currentLine.setLength(0);
+                wordCounter = 0;
+            }
+
+            currentLine.append(word).append(" ");
+            wordCounter++;
+        }
+
+        if (!currentLine.toString().isEmpty()) {
+            lines.add(currentLine.toString().trim());
+        }
+
         return lines;
     }
 

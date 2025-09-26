@@ -6,11 +6,13 @@ package xzot1k.plugins.ds;
 
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.devtec.shared.Ref;
+import me.devtec.shared.json.Json;
+import me.devtec.shared.utility.ParseUtils;
+import me.devtec.shared.utility.StreamUtils;
 import me.devtec.shared.versioning.VersionUtils;
 import org.bukkit.*;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -32,6 +34,7 @@ import xzot1k.plugins.ds.api.handlers.Delegate;
 import xzot1k.plugins.ds.api.handlers.DisplayPacket;
 import xzot1k.plugins.ds.api.objects.DAppearance;
 import xzot1k.plugins.ds.api.objects.Menu;
+import xzot1k.plugins.ds.api.objects.Pair;
 import xzot1k.plugins.ds.api.objects.Shop;
 import xzot1k.plugins.ds.core.Commands;
 import xzot1k.plugins.ds.core.DisplayManager;
@@ -55,12 +58,12 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
 import java.nio.file.*;
+import java.nio.file.FileSystem;
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.*;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -261,8 +264,14 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         setupRecipe();
 
         getServer().getScheduler().runTask(this, () -> {
+            long shopsStart = System.currentTimeMillis();
             getManager().loadShops(false, false);
+            long shopsEnd = System.currentTimeMillis();
+            log(Level.INFO, "Loaded shops in " + (shopsEnd - shopsStart) + " ms");
+            long marketStart = System.currentTimeMillis();
             getManager().loadMarketRegions(false);
+            long marketEnd = System.currentTimeMillis();
+            log(Level.INFO, "Loaded market regions in " + (marketEnd - marketStart) + " ms");
             getServer().getOnlinePlayers().forEach(player -> getManager().loadDataPack(player));
         });
 
@@ -273,7 +282,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             log(Level.WARNING, "You are currently running an 'EXPERIMENTAL' build. Please ensure to watch your "
                     + "data carefully, create backups, and use with caution.");
         else if (isOutdated())
-            log(Level.INFO, "There seems to be a different version on the Spigot resource page '"
+            log(Level.INFO, "There seems to be a different version on the Modrinth resource page '"
                     + getLatestVersion() + "'. You are currently running '" + getDescription().getVersion() + "'.");
         new MetricsImpl(this);
     }
@@ -926,16 +935,20 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     }
 
     private boolean isOutdated() {
-        /*try {
-            HttpURLConnection c = (HttpURLConnection) new URL("https://api.spigotmc.org/legacy/update.php?resource=69766").openConnection();
+        try {
+            HttpURLConnection c = (HttpURLConnection) new URL("https://api.modrinth.com/v2/project/displayshops/version").openConnection();
             c.setRequestMethod("GET");
-            String oldVersion = getDescription().getVersion(),
-                    newVersion = new BufferedReader(new InputStreamReader(c.getInputStream())).readLine();
-            if (!newVersion.equalsIgnoreCase(oldVersion))
-                return true;
+            String oldVersion = getDescription().getVersion();
+            List<Map<String, Object>> data = (List<Map<String, Object>>) Json.reader().simpleRead(StreamUtils.fromStream(c.getInputStream()));
+            Map<String, Object> theData = data.get(0);
+            assert theData != null;
+            String newVersion = (String) theData.getOrDefault("version_number", "");
+            int old = ParseUtils.getInt(oldVersion);
+            int neww = ParseUtils.getInt(newVersion);
+            return neww > old;
         } catch (IOException e) {
             log(Level.WARNING, e.getMessage());
-        }*/
+        }
         return false;
     }
 
@@ -944,13 +957,17 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
      *
      * @return The version number on the page.
      */
-    public String getLatestVersion() {
+    public Pair<String, String> getLatestVersion() {
         try {
-            HttpURLConnection c = (HttpURLConnection) new URL("https://api.spigotmc.org/legacy/update.php?resource=69766").openConnection();
+            HttpURLConnection c = (HttpURLConnection) new URL("https://api.modrinth.com/v2/project/displayshops/version").openConnection();
             c.setRequestMethod("GET");
-            return new BufferedReader(new InputStreamReader(c.getInputStream())).readLine();
+            List<Map<String, Object>> data = (List<Map<String, Object>>) Json.reader().simpleRead(StreamUtils.fromStream(c.getInputStream()));
+            Map<String, Object> theData = data.getFirst();
+            assert theData != null;
+
+            return Pair.of((String) theData.getOrDefault("version_number", ""), (String) theData.getOrDefault("changelog", ""));
         } catch (IOException ex) {
-            return getDescription().getVersion();
+            return Pair.of(getDescription().getVersion(), "");
         }
     }
 
@@ -997,7 +1014,13 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                     displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + versionString + ".DPacket");
                     logColor("&aSuccess! Version rewrite worked! Version: " + Bukkit.getServer().getBukkitVersion()+" -> "+versionString);
                 } catch (Exception b) {
-                    b.printStackTrace();
+                    try {
+                        Class<?> failsafe = Class.forName("xzot1k.plugins.ds.nms.v1_21_R8.VUtil");
+                        versionUtil = (VersionUtil) failsafe.getDeclaredConstructor().newInstance();
+                        displayPacketClass = Class.forName("xzot1k.plugins.ds.nms.v1_21_R8.VUtil");
+                    } catch (Exception g) {
+                        g.printStackTrace();
+                    }
                 }
             }
         }
@@ -1010,15 +1033,12 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     }
 
     public String toString(@NotNull ItemStack itemStack) {
+        if (isNewItemSaving() || Ref.isNewerThan(19)) {
+            return "new_2:" + (new String(encoder.encode(itemStack.serializeAsBytes())));
+        }
         YamlConfiguration itemConfig = new YamlConfiguration();
         itemConfig.set("item", itemStack);
-
-
         String item = itemConfig.saveToString();
-        if (isNewItemSaving()) {
-            return "new:" + (new String(encoder.encode(item.getBytes(StandardCharsets.UTF_8))));
-        }
-
         return item.replace("'", "[sq]").replace("\"", "[dq]");
     }
 
@@ -1033,6 +1053,10 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             itemString = new String(decoder.decode(itemString), StandardCharsets.UTF_8);
             foundNew = true;
         }
+        if (itemString.startsWith("new_2:")) {
+            itemString = itemString.substring(6);
+            return ItemStack.deserializeBytes(decoder.decode(itemString.getBytes(StandardCharsets.UTF_8)));
+        }
 
         if (!foundNew) {
             itemString = itemString.replace("[sq]", "'").replace("[dq]", "\"");
@@ -1041,7 +1065,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         YamlConfiguration restoreConfig = new YamlConfiguration();
         try {
             restoreConfig.loadFromString(itemString);
-        } catch (InvalidConfigurationException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return restoreConfig.getItemStack("item");
@@ -1168,6 +1192,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                     if (value.toUpperCase().contains("END_STONE"))
                         recipeSection.set(entry.getKey(), value.replace("END_STONE", "ENDER_STONE"));
                 }
+
 
             if (Ref.isOlderThan(9)) {
                 ConfigurationSection immersionSection = getConfig().getConfigurationSection("immersion-section");

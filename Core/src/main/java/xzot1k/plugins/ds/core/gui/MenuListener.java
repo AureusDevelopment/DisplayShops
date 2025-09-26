@@ -96,6 +96,24 @@ public class MenuListener implements Listener {
         final String invName = getInventoryName(e.getInventory(), e.getView());
         if (invName == null || invName.isEmpty() || e.getInventory().getType() == InventoryType.ANVIL
                 || INSTANCE.matchesAnyMenu(invName)) {
+            if ((invName != null && INSTANCE.matchesAnyMenu(invName))) {
+                DataPack dp = INSTANCE.getManager().getDataPack(player);
+                if (dp.getSelectedShop() != null) {
+                    Bukkit.getScheduler().runTaskLater(INSTANCE, () -> {
+                        String openInvTitle = getInventoryName(player.getOpenInventory().getTopInventory(), player.getOpenInventory());
+                        if (openInvTitle != null && INSTANCE.matchesAnyMenu(openInvTitle)) {
+                            return;
+                        }
+                        if (player.getOpenInventory().getType() == InventoryType.ANVIL) {
+                            return;
+                        }
+                        if (dp.getSelectedShop() != null) {
+                            dp.getSelectedShop().setCurrentEditor(null);
+                            dp.resetEditData();
+                        }
+                    }, 5);
+                }
+            }
             Listeners.openClaimMenu.remove(e.getPlayer().getUniqueId());
             return;
         }
@@ -103,7 +121,8 @@ public class MenuListener implements Listener {
 
         Bukkit.getScheduler().runTaskAsynchronously(INSTANCE, () -> {
             final DataPack dataPack = INSTANCE.getManager().getDataPack(player);
-            if (dataPack.getInteractionType() != null) return;
+            if (dataPack.getInteractionType() != null)
+                return;
 
             Menu menu = INSTANCE.getMenu(invName);
             if (menu != null && menu.getMenuName().contains("assistants")
@@ -547,7 +566,8 @@ public class MenuListener implements Listener {
             }
             case "description": {
                 final String title = menu.getConfiguration().getString("description-entry.title");
-                if (title != null) new AnvilGUI.Builder()
+                if (title != null)
+                    new AnvilGUI.Builder()
                         .onClose(stateSnapshot -> INSTANCE.getServer().getScheduler().runTaskLater(INSTANCE, () ->
                                 menu.build(stateSnapshot.getPlayer()), 1))
                         .onClick((slot, stateSnapshot) -> {
@@ -1259,10 +1279,12 @@ public class MenuListener implements Listener {
 
         if (e.getCurrentItem().getItemMeta() == null || !e.getCurrentItem().getItemMeta().hasDisplayName()) return;
 
-        String shopId = INSTANCE.getNBT(e.getCurrentItem(), "ds-bbm"),
-                appearanceId = INSTANCE.getNBT(e.getCurrentItem(), "ds-appearance");
-        if (shopId == null || appearanceId == null || shopId.isEmpty() || appearanceId.isEmpty()) return;
-
+        String appearanceId = INSTANCE.getNBT(e.getCurrentItem(), "ds-appearance");
+        if (appearanceId == null || appearanceId.isEmpty()) {
+            appearanceId = INSTANCE.getNBT(e.getCurrentItem(), "ds-bbm");
+            if (appearanceId == null || appearanceId.isEmpty())
+                return;
+        }
         Appearance appearance = Appearance.getAppearance(appearanceId);
         if (appearance == null) return;
 
@@ -1369,7 +1391,7 @@ public class MenuListener implements Listener {
 
                                         if (shop.getOwnerUniqueId() != null && uuid.toString().equals(shop.getOwnerUniqueId().toString())) {
                                             INSTANCE.getManager().sendMessage(player, INSTANCE.getLangConfig().getString("assistants-owner"),
-                                                    ("{owner}:" + offlinePlayer.getName()));
+                                                    ("{player}:" + offlinePlayer.getName()));
                                             return Collections.singletonList(AnvilGUI.ResponseAction.close());
                                         }
 
@@ -1400,7 +1422,7 @@ public class MenuListener implements Listener {
 
                                         if (shop.getOwnerUniqueId() != null && offlinePlayer.getUniqueId().toString().equals(shop.getOwnerUniqueId().toString())) {
                                             INSTANCE.getManager().sendMessage(player, INSTANCE.getLangConfig().getString("assistants-owner"),
-                                                    ("{owner}:" + offlinePlayer.getName()));
+                                                    ("{player}:" + offlinePlayer.getName()));
                                             return Collections.singletonList(AnvilGUI.ResponseAction.close());
                                         }
 
@@ -2503,7 +2525,6 @@ public class MenuListener implements Listener {
             if (name != null) {
                 String disabled = INSTANCE.getLangConfig().getString("disabled");
                 if (disabled == null) disabled = "";
-
                 final boolean isLimit = dataPack.getInteractionType().name().contains("LIMIT");
                 final boolean isDecimal = (dataPack.getInteractionType().name().contains("PRICE") || dataPack.getInteractionType() == InteractionType.AMOUNT_BALANCE);
                 final String newName = name.replace("{amount}", (!isLimit ? (isDecimal ? INSTANCE.getEconomyHandler().format(dataPack.getSelectedShop(),

@@ -39,7 +39,7 @@
             <plugin>
                 <groupId>ca.bkaw</groupId>
                 <artifactId>paper-nms-maven-plugin</artifactId>
-                <version>1.4.4</version>
+                <version>1.4.7</version>
                 <executions>
                     <execution>
                         <phase>compile</phase>

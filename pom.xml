@@ -53,13 +53,17 @@
         <module>v1_21_r2</module>
         <module>v1_21_r3</module>
         <module>v1_21_r4</module>
+        <module>v1_21_r5</module>
+        <module>v1_21_r6</module>
+        <module>v1_21_r7</module>
+        <module>v1_21_r8</module>
     </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
 
-        <server.version>1.20.6-R0.1-SNAPSHOT</server.version>
+        <server.version>1.21.7-R0.1-SNAPSHOT</server.version>
         <api.version>2.0</api.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.plugin.validation>DEFAULT</maven.plugin.validation>
@@ -110,6 +114,10 @@
             <id>opencollab-snapshot</id>
             <url>https://repo.opencollab.dev/main/</url>
         </repository>
+        <repository>
+            <id>matteodev</id>
+            <url>https://maven.devs.beer/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -132,7 +140,7 @@
         <dependency>
             <groupId>net.wesjd</groupId>
             <artifactId>anvilgui</artifactId>
-            <version>1.10.4-SNAPSHOT</version>
+            <version>1.10.8-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
@@ -165,9 +173,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.LoneDev6</groupId>
+            <groupId>dev.lone</groupId>
             <artifactId>api-itemsadder</artifactId>
-            <version>3.2.5</version>
+            <version>4.0.10</version>
             <scope>provided</scope>
         </dependency>
 

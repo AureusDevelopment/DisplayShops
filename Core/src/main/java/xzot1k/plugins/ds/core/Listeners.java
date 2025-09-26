@@ -1136,7 +1136,7 @@ public class Listeners implements Listener {
             }
         }
         boolean allowEvent=false;
-        if (getPluginInstance().getWorldGuardHandler().getWorldGuard().isPresent() && getPluginInstance().getConfig().getBoolean("worldguard-integration")) {
+        if (getPluginInstance().getWorldGuardHandler() != null && getPluginInstance().getWorldGuardHandler().getWorldGuard().isPresent() && getPluginInstance().getConfig().getBoolean("worldguard-integration")) {
             if (getPluginInstance().getWorldGuardHandler().handleShop(player, block)) {
                 if (!player.hasPermission("displayshops.wg_bypass")) {
                     return new Pair<>(true,false);
@@ -1147,11 +1147,14 @@ public class Listeners implements Listener {
 
         ShopCreationEvent shopCreationEvent = new ShopCreationEvent(player, block.getLocation());
         getPluginInstance().getServer().getPluginManager().callEvent(shopCreationEvent);
-        if (shopCreationEvent.isCancelBlockPlaceEvent()) return new Pair<>(true,false);
-        if (shopCreationEvent.isCancelled()) return new Pair<>(false,false);
+        if (shopCreationEvent.isCancelBlockPlaceEvent())
+            return new Pair<>(true, false);
+        if (shopCreationEvent.isCancelled())
+            return new Pair<>(true, false);
 
         Shop shopCheck = getPluginInstance().getManager().getShop(block.getLocation());
-        if (shopCheck != null || isTooClose(player, block, itemStack, false)) return new Pair<>(false,false);
+        if (shopCheck != null || isTooClose(player, block, itemStack, false))
+            return new Pair<>(true, false);
 
         if (getPluginInstance().getManager().isBlockedMaterial(block.getRelative(BlockFace.DOWN).getType())) {
             if (player.getInventory().firstEmpty() == -1)

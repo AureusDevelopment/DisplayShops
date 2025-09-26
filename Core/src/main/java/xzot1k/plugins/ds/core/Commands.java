@@ -7,8 +7,11 @@ package xzot1k.plugins.ds.core;
 import me.devtec.shared.Ref;
 import me.devtec.shared.utility.StringUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.ItemTag;
@@ -1568,18 +1571,23 @@ public class Commands implements CommandExecutor {
                 "<yellow><<st>-------------------------------------</st>>";
 
         String pluginVersion = (getPluginInstance().getDescription().getVersion().toLowerCase().contains("build") ? "<red>" : "<green>") + getPluginInstance().getDescription().getVersion();
-        String releasedVersion = (getPluginInstance().getDescription().getVersion().toLowerCase().contains("snapshot") ? "<dark_blue>" : "<green>") + getPluginInstance().getLatestVersion();
+        Pair<String, String> versionData = getPluginInstance().getLatestVersion();
+        String releasedVersion = (getPluginInstance().getDescription().getVersion().toLowerCase().contains("snapshot") ? "<dark_blue>" : "<green>") + versionData.getKey();
+
+        MiniMessage specialMM = MiniMessage.builder().tags(TagResolver.builder().resolvers(StandardTags.newline(), StandardTags.color()).build()).build();
+        Component releasedVersionComponent = mm.deserialize(releasedVersion).appendSpace().append(Component.text("Changelog (Hover)", NamedTextColor.RED).hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(specialMM.deserializeOr("<gold>" + versionData.getValue().replace("\\n", "<br>"), Component.text(versionData.getValue(), NamedTextColor.GOLD)))));
+
         if (Ref.serverType() == Ref.ServerType.PAPER) {
             commandSender.sendMessage(mm.deserialize(message
                     , Placeholder.parsed("plversion", pluginVersion)
-                    , Placeholder.parsed("plreleasedver", releasedVersion)
+                    , Placeholder.component("plreleasedver", releasedVersionComponent)
                     , Placeholder.component("authors", this::getAuthors)));
         } else {
             commandSender.sendMessage(getPluginInstance().getManager().color("\n&e<&m------------&r&e[ &bDisplayShops &e]&m------------&r&e>\n" +
                     "&7Current Plugin Version: " + (getPluginInstance().getDescription().getVersion().toLowerCase().contains("build") ? "&c" : "&a")
                     + getPluginInstance().getDescription().getVersion() + "\n" +
                     "&7Latest Release Plugin Version: " + (getPluginInstance().getDescription().getVersion().toLowerCase().contains("snapshot") ? "&1" : "&a")
-                    + getPluginInstance().getLatestVersion() + "\n"
+                    + getPluginInstance().getLatestVersion().getKey() + "\n"
                     + "&7Author(s): &b" + StringUtils.join(getPluginInstance().getDescription().getAuthors(), ", ") + "\n" +
                     "&e<&m-------------------------------------&r&e>\n"));
         }
@@ -1919,9 +1927,11 @@ public class Commands implements CommandExecutor {
 
         final double price = (getPluginInstance().getConfig().getDouble("creation-item-price") * amount);
 
-        final EconomyCallEvent economyCallEvent = EconomyCallEvent.call(player, null, EconomyCallType.CREATION_ITEM_COMMAND,
-                getPluginInstance().getConfig().getDouble("creation-item-price"));
-        if (economyCallEvent.failed()) return;
+        if (price > 0) {
+            final EconomyCallEvent economyCallEvent = EconomyCallEvent.call(player, null, EconomyCallType.CREATION_ITEM_COMMAND,
+                    price);
+            if (economyCallEvent.failed()) return;
+        }
 
         getPluginInstance().getManager().giveItemStacks(player, itemStack, amount);
 
