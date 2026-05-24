@@ -1,0 +1,29 @@
+Title: "&8Claim resources from inactive shop"
+EmptySlots: [ 2 ]
+
+FillItem:
+  Material: "BLACK_STAINED_GLASS_PANE"
+  DisplayName: "&1"
+  ModelData: 0
+
+
+ClickableItems:
+  ItemClaimButton:
+    Material: "CHEST_MINECART"
+    DisplayName: "&9Click to claim 64 items from this shop"
+  ClaimableItem:
+    DisplayName: "&9This is the item you can withdraw from this shop"
+    Lore:
+      - "&cRemaining amount of items: &e%amount%"
+  CurrencyItem:
+    DisplayName: "&eCurrency that you can withdraw"
+  CurrencyClaimButton:
+    Material: "REDSTONE_TORCH"
+    DisplayName: "&eClick to withdraw currency from shop"
+
+
+
+
+
+
+

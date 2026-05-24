@@ -1,0 +1,103 @@
+# Please refer to the configuration wiki page (https://github.com/XZot1K/DisplayShopsAPI/wiki/menu-configuration) for documentation.
+# By default, some options for each button are left out to remove clutter. Refer to the link above to see which options may be implemented.
+
+title: "&6Shop Transaction"
+size: 45
+
+filler-material: "BLACK_STAINED_GLASS_PANE"
+filler-model-data: 0
+
+preview-slot: 13
+
+# determines if the preview slot can be clicked to see the trade item
+allow-preview: true
+
+trade-item-lore:
+  - "&e&m-----------------------------"
+  - ""
+  - "&aClick &7to view the trade/currency"
+  - "&7item."
+
+sale-item-lore:
+  - "&e&m-----------------------------"
+  - ""
+  - "&7Buy Price: &e{buy}"
+  - "&7Sell Price: &e{sell}"
+  - ""
+  - "&aClick &7to view the shop's preview"
+  - "&7item."
+
+buttons:
+  buy:
+    slot: 10
+    material: "CHEST_MINECART"
+    name: "&e&l$ &a&lPurchase &e&l$"
+    lore:
+      - ""
+      - "&aClick &7to purchase &e{item-count}"
+      - "&7of this item from this"
+      - "&7shop for &e{buy-price}&7."
+  buy-all:
+    slot: 11
+    material: "REDSTONE_TORCH"
+    name: "&e&l$ &a&lPurchase All &e&l$"
+    lore:
+      - ""
+      - "&aClick &7to purchase all possible."
+  sell:
+    slot: 16
+    material: "HOPPER_MINECART"
+    name: "&e&l$ &c&lSell &e&l$"
+    lore:
+      - ""
+      - "&aClick &7to sell &e{item-count} &7of this item"
+      - "&7to this shop for &e{sell-price}&7."
+  sell-all:
+    slot: 15
+    material: "REDSTONE_TORCH"
+    name: "&c&lSell All"
+    lore:
+      - ""
+      - "&aClick &7to sell all possible."
+  unit:
+    slot: 31
+    material: "PAPER"
+    name: "&d&l\u2605 &e&lTransaction Unit Count &d&l\u2605"
+    lore:
+      - ""
+      - "&7This item represents how many"
+      - "&7units of the shop item will be"
+      - "&7purchased after interacting with"
+      - "&7the buy item."
+  unit-increase:
+    slot: 28
+    material: "GREEN_WOOL"
+    name: "&a&l\u2605 &e&lIncrease Unit Count &a&l\u2605"
+    lore:
+      - ""
+      - "&aClick &7to increase the unit"
+      - "&7count by &e1&7."
+  unit-increase-16:
+    slot: 29
+    material: "ORANGE_WOOL"
+    name: "&a&l\u2605 &e&lIncrease Unit Count &a&l\u2605"
+    lore:
+      - ""
+      - "&aClick &7to increase the unit"
+      - "&7count by &e16&7."
+  unit-decrease:
+    slot: 34
+    material: "RED_WOOL"
+    name: "&c&l\u2605 &e&lDecrease Unit Count &c&l\u2605"
+    lore:
+      - ""
+      - "&aClick &7to decrease the unit"
+      - "&7count by &e1&7."
+  unit-decrease-16:
+    slot: 33
+    material: "ORANGE_WOOL"
+    name: "&c&l\u2605 &e&lDecrease Unit Count &c&l\u2605"
+    lore:
+      - ""
+      - "&aClick &7to decrease the unit"
+      - "&7count by &e16&7."

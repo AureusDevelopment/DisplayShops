@@ -1,0 +1,66 @@
+# Please refer to the configuration wiki page (https://github.com/XZot1K/DisplayShopsAPI/wiki/menu-configuration) for documentation.
+# By default, some options for each button are left out to remove clutter. Refer to the link above to see which options may be implemented.
+
+title: "&8Amount Selector"
+size: 36
+
+filler-material: "BLACK_STAINED_GLASS_PANE"
+filler-model-data: 0
+
+custom-amount-entry:
+  title: "&8Custom Entry"
+  invalid: "Value invalid."
+  negative: "Value must be positive."
+
+buttons:
+  amount:
+    slot: 13
+    material: "PAPER"
+    name: "&e{amount}"
+  add-1:
+    slot: 1
+    material: "LIME_WOOL"
+    name: "&6+&e1"
+  add-10:
+    slot: 10
+    material: "LIME_WOOL"
+    name: "&6+&e10"
+  add-100:
+    slot: 19
+    material: "LIME_WOOL"
+    name: "&6+&e100"
+  add-all:
+    slot: 11
+    material: "ORANGE_WOOL"
+    name: "&6+ &eMax"
+  remove-1:
+    slot: 7
+    material: "RED_WOOL"
+    name: "&6-&e1"
+  remove-10:
+    slot: 16
+    material: "RED_WOOL"
+    name: "&6-&e10"
+  remove-100:
+    slot: 25
+    material: "RED_WOOL"
+    name: "&6-&e100"
+  remove-all:
+    slot: 15
+    material: "ORANGE_WOOL"
+    name: "&cReset"
+  return:
+    slot: 30
+    material: "TEXTURE:eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWE2Nzg3YmEzMjU2NGU3YzJmM2EwY2U2NDQ5OGVjYmIyM2I4OTg0NWU1YTY2YjVjZWM3NzM2ZjcyOWVkMzcifX19"
+    name: "&cReturn"
+    lore: [ "", "&aClick &7to return", "&7to the previous", "&7menu." ]
+  custom-amount:
+    slot: 31
+    material: "ANVIL"
+    name: "&dCustom Entry"
+    lore: [ "", "&aClick &7to enter", "&7a custom value." ]
+  confirm:
+    slot: 32
+    material: "HEAD:MHF_Exclamation"
+    name: "&bConfirm"
+    lore: [ "", "&aClick &7to confirm", "&7your entry." ]

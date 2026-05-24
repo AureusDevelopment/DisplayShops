@@ -1,3 +1,0 @@
-<component name="DependencyValidationManager">
-  <scope name="DisplayShopsAPI" pattern="file[DisplayShopsAPI]||src[API]:xzot1k.plugins.ds..*||src[API]:xzot1k.plugins.ds.api..*||src[API]:xzot1k.plugins.ds.api.eco..*||src[API]:xzot1k.plugins.ds.api.enums..*||src[API]:xzot1k.plugins.ds.api.events..*||src[API]:xzot1k.plugins.ds.api.handlers..*||src[API]:xzot1k.plugins.ds.api.objects..*||src[API]:xzot1k.plugins.ds.exceptions..*" />
-</component>

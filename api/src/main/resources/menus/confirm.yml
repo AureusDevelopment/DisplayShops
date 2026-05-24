@@ -1,0 +1,25 @@
+# Please refer to the configuration wiki page (https://github.com/XZot1K/DisplayShopsAPI/wiki/menu-configuration) for documentation.
+# By default, some options for each button are left out to remove clutter. Refer to the link above to see which options may be implemented.
+
+title: "&8Are You Sure?"
+size: 5
+
+filler-material: "BLACK_STAINED_GLASS_PANE"
+filler-model-data: 0
+
+prices:
+  delete-shop: 100.0
+
+buttons:
+  info:
+    slot: 2
+    material: "OAK_SIGN"
+    name: "&eConfirmation"
+  confirm:
+    slot: 0
+    material: "LIME_WOOL"
+    name: "&aConfirm"
+  deny:
+    slot: 4
+    material: "RED_WOOL"
+    name: "&cDeny"

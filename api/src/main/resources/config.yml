@@ -1,0 +1,546 @@
+## Inside this file is where all options and general settings can be modified. ##
+## In the event that this configuration is formatted refer to documentation here: ##
+## https://github.com/XZot1K/DisplayShopsAPI/blob/master/config.yml ##
+
+# All MySQL settings can be set and handled within this section.
+mysql:
+  # This is how often every 6 hours the mysql database will be dumped to a file in seconds (Set to -1 to disable).
+  dump-interval: 21600
+  # The "use-ssl" feature enables SSL connection support.
+  use-ssl: false
+  database: "DisplayShops"
+  # The "host" option can be left blank to determine whether mysql is used or not.
+  # If disabled, SQLite will be used locally instead.
+  host: ""
+  port: "3306"
+  username: "root"
+  password: ""
+
+# As display packets are being sent and removed memory is allocated more and more. Having this option enabled will call garbage collection
+# immediately after all packets are sent out and managed. This will resolve the increasing memory usage until garbage collection automates later on.
+run-gc-immediately: true
+
+# When shops are loaded or the cleanup command is executed all shops with owners that have been in-active for
+# this amount of time (in seconds) will be deleted.
+clean-inactive-duration: -1
+
+# When this is set to true, and the `clean-inactive-duration` is not set on '-1', when shop's owner has not been online for `clean-inactive-duration` specified time,
+# the shop is not deleted, but it's transitioned into a state where the contents (items / money) can be claimed by other players
+claimable-system: false
+# When player collects all items / money from this claimable system, should we give them the shop back?
+claimable-system-give_shop: false
+
+#Changes how Items are saved into database - human-unreadable format
+new-item-mysql-saving: true
+
+# When enabled, the blocks above shops will be cleared to avoid any display conflicts when shops are loaded in from the database.
+fix-above-blocks: true
+
+# These will completely determine how explosive protection is handled.
+explosive-protection:
+  # If enabled explosives will not destroy shop base-blocks, otherwise shops will be properly deleted when exploded.
+  check: true
+  # If enabled, the alternative (more aggressive) protection will be enabled. When a shop is exploded, the entire explosion will be prevented.
+  alternative-method: false
+
+# These will completely determine how piston protection is handled.
+piston-protection:
+  # This option determines if piston protection should even be used (WARNING: base-block will be damaged if pushed/retracted, if disabled).
+  check: true
+  # This option will attempt to use a much stronger, yet quicker algorithm to protect shops from pistons.
+  alternative-method: false
+
+# This is the maximum size of the log file (In Megabytes). If the file size exceeds this values, the log will not be written to.
+# (Note: Set this value to -1 to have no limit.)
+log-max-size: -1
+
+# If this is disabled, Vault will be ignored and the built-in physical item currency will be used.
+use-vault: true
+
+# This is the default Economy each shop will utilize upon creation or reset.
+default-currency-type: "Vault"
+
+# Economy currencies within this list will be unavailable for player's to select in their shop's edit menu without permission.
+# Preset economy IDs: [ "Vault", "item-for-item", "PlayerPoints" ]
+currency-blacklist: [ ]
+
+# If set to true and WorldGuard plugin is present, this will enable: When Shop is being created, a value of a flag 'ds-create' is checked and if set to true, inside this region players can build Shops
+# Players that have permission 'displayshops.wg_bypass' will be ignored - flag for them isn't going to be checked and they'll be able to build in every region regardless of flag's state
+worldguard-integration: false
+
+# This section can contain all the economy names found within the edit menu in-game alongside an alternate name to be used.
+# Note: The "format" option will override the "raw-placeholder-value". Available Placeholders: {amount}, {symbol}, and {name}
+#
+# Economy calls (events) defined within the "forced-economy-calls" list will be forced to use the economy it is defined under.
+# For example, when a player unlocks an Appearance or Visits a shop, Vault will be forced as the currency (if defined under Vault).
+# Available economy call types: https://github.com/XZot1K/DisplayShopsAPI/blob/recode/src/main/java/xzot1k/plugins/ds/api/enums/EconomyCallType.java
+currency-settings:
+  item-for-item:
+    name: ""
+    symbol: ""
+    decimal-placement: 0
+    raw-placeholder-value: false
+    use-format: false
+    format: "&6{symbol}&e{amount}"
+    forced-economy-calls: [ ]
+  Vault:
+    name: "Money ({symbol})"
+    symbol: "$"
+    decimal-placement: 2
+    raw-placeholder-value: false
+    use-format: false
+    format: "&6{symbol}&e{amount}"
+    forced-economy-calls: [ "APPEARANCE", "VISIT" ]
+  PlayerPoints:
+    name: "Points ({symbol})"
+    symbol: ""
+    decimal-placement: 0
+    raw-placeholder-value: false
+    use-format: false
+    format: "&6{symbol}&e{amount}"
+    forced-economy-calls: [ ]
+
+# If this is enabled and Towny is installed, shop plots available to the player will be the only allowed area for shops.
+towny-shop-plots-only: true
+
+# If this is disabled, transactions to shops where the owner is not online will be blocked.
+offline-mode: true
+
+# If this is enabled, players in creative can not perform certain actions on a shop.
+block-creative: false
+
+# This is the auto save task interval in seconds.
+auto-save-interval: 900
+
+# How long should chat interactions wait before they cancel themselves (In Seconds)?
+# (Note: Set to -1 to disable timeout.)
+chat-interaction-timeout: 15
+
+# This option will check shops and delete them if their base-block is invalid every time the delay below is reached (In seconds).
+base-block-sync-delay: -1
+
+# This is how long a shop's sell or buy transaction must remain untouched before the dynamic modifier is reset (In seconds).
+dynamic-price-change: 14400
+
+# These are the intervals of remaining time until expire where the renter will be notified about renewal (In seconds).
+rent-notify-intervals: [ 7200, 3600, 1800, 900, 300, 60, 15, 5 ]
+
+# This is the default rent expire duration when a player rents out a market region (In seconds).
+rent-expire-duration: 259200
+
+# This is the time a market region's rent will be extended per renew.
+rent-extend-duration: 86400
+
+# This is the cost a player will need to pay to renew a market region they are already renting.
+rent-renew-cost: 250.0
+
+# This is the cost a player will need to pay to begin renting a market region.
+rent-cost: 300.0
+
+# How long should a player have to wait before they teleport to a shop they want to go to? (In seconds)
+visit-delay: 5
+
+# This is the price that visiting a shop will cost a player when the feature is used.
+# (Note: There is no confirmation aside the error and final messages.)
+visit-charge: 100.0
+
+# If this is enabled, players will be unable to use the visit command nor any features related to it.
+shop-visiting: true
+
+# This is the duration the player must wait in between advertising their shop to other players.
+shop-advertise-cooldown: 60
+
+# This is the currency amount that represents the cost for advertising a shop.
+shop-advertise-cost: 120.0
+
+# This is the default color that will be used for the item name in the broadcast JSON message.
+# (Note: If the item has a custom name, that will take priority over this color)
+shop-broadcast-color: "&f"
+
+# This is how many assistants a shop can have at a single given time.
+assistants-cap: 5
+
+# If this is enabled, players will only have the ability to set the shop and trade items of a shop to an item in hand with an amount of 1.
+# (Note: This basically just forces the unit count of a shop to always be 1 instead of any value. DOES NOT EFFECT EXISTING SHOPS)
+force-single-items: false
+
+# This is the string/color used for each line that doesn't contain a color code with a shop's description.
+default-description-color: "&b"
+
+# This is the word limit for all shop descriptions (45 is max for the packet name tag).
+description-character-limit: 45
+
+# This is the description wrapping mechanic that will wrap the text to a new line based on word size.
+description-long-word-wrap: 4
+
+# This is how many words a description can have per line.
+description-word-line-limit: 5
+
+# Strings within this filter will be removed from all shop's descriptions.
+# (Note: Phrases can be implemented into this list as well. The list can also be changed to a vertical format like other lists in the configuration.)
+description-filter: [ "fuck", "shit", "cunt", "fag", "faggot", "bitch", "dick", "damn", "www.", ".com", ".net" ]
+
+# When a shop item is inserted into a shop, the shop's description will be set to the item's enchantments in addition to the "enchantment-description-format" option below.
+# (NOTE: If the shop's item has no enchantment this will not touch the description.)
+enchantment-description-set: true
+
+# This format is added to the end to display to show how many other enchantment there are past the "enchantment-cut-count".
+enchantment-description-format: "({remainder} more)"
+
+# This option determines how many enchantments are shown in the "enchantment-description-format" before it simply just grabs the remainder and displays that.
+enchantment-cut-count: 3
+
+# When a shop item is inserted into a shop, the shop's description will be set to the item's potion effects in addition to the "potion-description-format" option below.
+# (NOTE: If the shop's item has no enchantment this will not touch the description.)
+potion-description-set: true
+
+# This format is added to the end to display to show the how many custom effects are attached to the potion.
+potion-description-format: "({remainder} more)"
+
+# This text is used alongside the potion type to determine if the potion has extended duration or not.
+potion-description-extended: "Extended"
+
+# This text is used alongside the potion type to determine if the potion is upgraded in terms of potency or not.
+potion-description-upgraded: "Upgraded"
+
+# If this is enabled, the display item above the shop's base block will always be a single item.
+force-single-stack: false
+
+# If this is enabled and a shop is deleted, the creation item will drop as well.
+creation-item-drop: true
+
+# If this is enabled, empty shops will display with a barrier block as the floating item instead of nothing.
+empty-shop-item: true
+
+# If this is enabled, the player can edit the shop when no shop item is set. This is an alternative process for setting up shops.
+empty-shop-edit: false
+
+# If this is enabled, the player can quick-withdraw and quick-deposit to/from a shop.
+quick-actions: true
+
+# If this option is enabled, shops will use the owner's balance instead of the stored balance when they are online.
+sync-owner-balance: false
+
+# This cooldown acts as a delay between performing a buy/sell action within the transaction menu as an attempt to prevent auto-clicking.
+transaction-cooldown: 1
+
+# This is the price the player must pay to get a shop creation item.
+creation-item-price: 250
+
+prices:
+  withdraw-stock: 0.0
+  deposit-stock: 0.0
+  sale-item-change: 0.0
+  trade-item-change: 0.0
+  buy-price: 0.0
+  sell-price: 0.0
+  balance: 0.0
+  global-buy-limit: 0.0
+  global-sell-limit: 0.0
+  player-buy-limit: 0.0
+  player-sell-limit: 0.0
+
+# If this is greater than zero, the defined percentage will be taken from the buy/sell transaction value before it reaches a player in the form of tax.
+# Note: Use decimal values 0.0 - 1.0
+transaction-tax: 0
+
+# If this is enabled, dynamic prices will be usable and vice-versa.
+dynamic-prices: true
+
+# This is the increment of each time the buy-price will be increased by the percentage listed below. For example, if the increment is 3 the shop will not stack a percentage
+# on top of the shop's base buy-price until its total transaction count can be divided by 3.
+dynamic-buy-increment: 3
+dynamic-buy-percentage: 0.05
+
+# This is the increment of each time the sell-price will be decreased by the percentage listed below. For example, if the increment is 3 the shop will not stack a percentage
+# on top of the shop's base sell-price until its total transaction count can be divided by 3.
+dynamic-sell-increment: 3
+dynamic-sell-percentage: 0.05
+
+# This is used to enhance the format of the numbers displayed throughout the plugin. (Note: Set this to 0 for whole numbers)
+minimum-fraction-digits: 2
+
+# If this option is enabled, numerical entries must all be whole numbers. Decimals and non-numerals will send the "invalid-amount" message to the player.
+whole-number-entries: false
+
+# If this option is enabled, numbers will be formatted into a short manner (e.g 1.2k or 1.4m)
+# (Note: The 'minimum-fraction-digits' option only affects the number before this format, the short format has around three decimal places respectfully)
+short-number-format: false
+
+# If this is enabled and short-number-format is disabled, numbers will be formatted with periods before commas to simulate UK number formatting.
+use-uk-format: false
+
+# This is the message the player must type to exit a chat interaction.
+chat-interaction-cancel: "cancel"
+
+# This is the link that will be suggested to the player when clicking the help command message.
+# (Note: Setting this to "wiki" will use the default GitHub page link. Setting it to "" will disable it completely.)
+help-command-link: "wiki"
+
+# These are offsets and rotation values to help position certain items correctly (Oraxen and ItemsAdder Ids are supported)
+# Format: <material/Id>:<x>,<y>,<z>,<scale>
+item-display-offsets:
+  - "SHIELD:-0.2,0.18,0.2,-0.1"
+  - "BARRIER:0,0,0,0"
+  - "CHAIN:0,-0.4,0,0"
+  - "BED:0,-0.2,0,0"
+  - "HEAD:0,0,0,0"
+  - "BANNER:0,-0.18,0,-0.16"
+  - "TRAPDOOR:0,0.3,0,0"
+  - "FENCE_GATE:0,-0.1,0,0"
+
+# If this is enabled, the glass display will be ignored.
+hide-glass: false
+
+# This is the scale of the glass above a shop.
+display-glass-scale: 0.7
+
+# This allows items to spin on the base-block.
+# (Note: This automatically adjusts item offsets, not blocks)
+allow-item-spinning: true
+
+# This is the background color of the text above a shop
+# Format: <alpha(0-100),red(0-255),green(0-255),blue(0-255)>
+display-line-color: "60,0,0,0"
+
+# If this option is enabled, shop displays will remain visible at all times while the player is in range.
+# (NOTE: This feature has a distance calculation based on chunks)
+always-display: false
+always-display-radius: 15
+
+# If enabled, when the shop's hologram line contains a sell/buy price that is disabled the line will be hidden.
+price-disabled-hide: true
+
+# If broadcasting is allowed, the worlds in the list below will be where the shop is broadcast.
+broadcasting-worlds:
+  - "world"
+  - "world_nether"
+  - "world_the_end"
+
+# This is the hologram format that is used when a shop is created or when the shop item is invalid.
+invalid-item-format:
+  - "&cEmpty Display Shop"
+  - "&7Owner: &e{owner}"
+
+# This is the hologram format that is used when a shop is fully created and has a shop item.
+# (Note: The {description} placeholder must be on a line by itself or only color code values)
+valid-item-format:
+  - "{item}&r &7x&a{amount}"
+  - "&b{description}"
+  - "&7Buy from shop for &e{buy-price}"
+  - "&7Sell to shop for &e{sell-price}"
+  - "&7Stock: &e{stock} &7Owner: &e{owner}"
+
+# This is the hologram format that is used when a shop has a unlimited stock amount and has no owner.
+# (Note: The {description} placeholder must be on a line by itself or only color code values)
+admin-shop-format:
+  - "{item}&r &7x&a{amount}"
+  - "&b{description}"
+  - "&7Buy from shop for &e{buy-price}"
+  - "&7Sell to shop for &e{sell-price}"
+  - "&cAdmin Shop &7(Stock: &e{stock}&7)"
+
+claimable-format:
+  - "{item} &r &7x&a{stock}"
+  - ""
+  - "&7This shop is claimable - owner is inactive"
+
+# This is the hologram format that is used when a shop has a unlimited stock amount and has no owner,
+# but has no valid shop item.
+admin-invalid-item-format:
+  - "&cEmpty Admin Shop"
+  - "&7Please come back later"
+
+# This is the maximum sell price a player can set on their shop.
+sell-price-limit: 9999999999
+
+# This is the maximum buy price a player can set on their shop.
+buy-price-limit: 9999999999
+
+# This is the maximum limit a player can set on their global & player specific shop buy limitations.
+buy-limit-cap: 9999999999
+
+# This is the maximum limit a player can set on their global & player specific shop sell limitations.
+sell-limit-cap: 9999999999
+
+# This is the maximum stored currency a shop can have as a balance.
+max-stored-currency: 9999999999
+
+# This is the maximum stack size a player can set on the shop item inside the shop.
+max-item-stack-size: 256
+
+# This is the default shop limit a player can have at one time.
+# (Note: This can be change for each player via permissions)
+default-shop-limit: 5
+
+# This is the default market region limit a play can have rented out at one time.
+# (Note: This can be change for each player via permissions)
+default-region-limit: 2
+
+# These are the default prices for shops.
+default-buy-price: 100
+default-sell-price: 25
+
+# This is the overall maximum stock a single shop can have at one time.
+max-shop-stock: 100000
+
+# These are the maximum unit counts a player can buy or sell from the buy/sell all feature in one transaction.
+maximum-buy-all: 36
+maximum-sell-all: 36
+
+# If this option is enabled, shops will require the stock to be at zero before allowing actions such as shop deletion or changing the item for sale.
+require-empty-stock: true
+
+# If this option is enabled, shops will require the balance to be at zero before allowing actions such as changing the trade/currency item.
+require-empty-balance: true
+
+# If this option is enabled, the transaction interface will close after a transaction is complete.
+close-transaction-gui: true
+
+# If enabled, a shop can not be modified or purchased/sold to/from while undergoing edits by a player.
+editor-prevention: false
+
+# This is the block distance a shop must be from another shop (Regardless another shop is unable to be placed in a one block radius).
+required-shop-distance: 1
+
+# Worlds in this list will not allow shop creations.
+blocked-worlds: [ "creative_world" ]
+
+# Materials in this list will block shops from being created on them.
+blocked-material-list: [ "LAVA", "STATIONARY_LAVA" ]
+
+# Item materials in this list are unable to be sold in the shops.
+# (Please not that shops whom already contain these items will NOT be affected.)
+# Format: <material:durability> (Don't put a durability if it doesn't matter)
+blocked-item-list: [ "END_PORTAL", "PORTAL" ]
+
+# All ids defined in this list will be checked on an item's NBT before an interaction with a shop's base block takes place.
+blocked-nbt-list: [ "UnopenedEnchantBook", "EnchantGroup" ]
+
+# This is the list where specific materials can be given direct limitation to the maximum buy and sell price (max per one of that material in a stack "outside unit count").
+max-material-prices:
+  DIAMOND_SWORD:
+    buy: 50000.0
+    sell: 25000.0
+
+# This is the list where specific materials can be given direct limitation to the minimum buy and sell price (min per one of that material in a stack "outside unit count").
+min-material-prices:
+  DIAMOND_SWORD:
+    buy: 100.0
+    sell: 25.0
+
+# Event commands are commands that will execute under specific events or actions.
+# Each of the lists are empty by default. Similar to every other list in the configuration, follow the format of YAML.
+# (Note: Do not begin with a slash unless two slash commands such as in WorldEdit are needed and end ALL commands with either :PLAYER or :CONSOLE)
+event-commands:
+
+  # This is the list of commands that will be executed when a shop is opened (Transaction Interface).
+  shop-open: [ ]
+
+  # This is the list of commands that will be executed when a shop is opened (Edit Interface).
+  shop-edit: [ ]
+
+  # This is the list of commands that will be executed when a shop is opened (Buy Transaction Completion).
+  shop-buy: [ ]
+
+  # This is the list of commands that will be executed when a shop is opened (Buy Transaction Completion).
+  shop-sell: [ ]
+
+  # This is the list of commands that will be executed when a shop's item is set.
+  shop-item-set: [ ]
+
+  # This is the list of commands that will be executed when a shop's trade item is set.
+  trade-item-set: [ ]
+
+  # This is the list of commands that will be executed when a shop's buy price is changed.
+  shop-buy-price: [ ]
+
+  # This is the list of commands that will be executed when a shop's sell price is changed.
+  shop-sell-price: [ ]
+
+  # This is the list of commands that will be executed when a shop has items withdrawn.
+  shop-withdraw: [ ]
+
+  # This is the list of commands that will be executed when the shop has had items deposited.
+  shop-deposit: [ ]
+
+  # This is the list of commands that will be executed when the shop's global buy limit is changed.
+  global-buy-limit: [ ]
+
+  # This is the list of commands that will be executed when the shop's global sell limit is changed.
+  global-sell-limit: [ ]
+
+  # This is the list of commands that will be executed when the shop's player buy limit is changed.
+  player-buy-limit: [ ]
+
+  # This is the list of commands that will be executed when the shop's player sell limit is changed.
+  player-sell-limit: [ ]
+
+  # This is the list of commands that will be executed when the shop's item stack size is changed.
+  shop-amount: [ ]
+
+  # This is the list of commands that will be executed when the shop's description is changed.
+  shop-description: [ ]
+
+  # This is the list of commands that will be executed when a shop is deleted.
+  shop-delete: [ ]
+
+
+# Here you can customize sounds and effects.
+# (Note: Make sure these always match your MC version)
+immersion-section:
+  shop-creation-sound: "ENTITY_ITEM_PICKUP"
+  shop-creation-particle: "CLOUD"
+  shop-delete-sound: "BLOCK_WOOD_BREAK"
+  shop-delete-particle: "SMOKE_NORMAL"
+  shop-visit-particle: "CLOUD"
+  shop-visit-sound: "ENTITY_ENDERMAN_TELEPORT"
+  shop-bbm-sound: "ENTITY_SNOWBALL_THROW"
+  shop-bbm-particle: "FLAME"
+
+
+#Changes the behaviour of whether to use ItemDisplays (1.19.4+ and server jar from Paper) or Packet-Based Armor stands which are more friendly to server performance
+use-item-displays-if-available: false
+
+# Here is where the shop creation item can be fully configured.
+# (Note: The material is the 'shop-block-material' defined under the 'shop-options' section)
+shop-creation-item:
+  # Tells the plugin if the player can craft it or not.
+  craftable: true
+  # This option is the recipe for this creation item, 3 slots per row. Each material may have a durability if the material is followed with
+  # a colon. To separate slots simply use a comma (Use -1 as the durability for it to not matter).
+  recipe:
+    line-one: "AIR:-1,GLASS:-1,AIR:-1"
+    line-two: "END_STONE:-1,CHEST:-1,END_STONE:-1"
+    line-three: "OBSIDIAN:-1,OBSIDIAN:-1,OBSIDIAN:-1"
+  # This determines if the creation item will glow.
+  enchanted: false
+  display-name: "&b&lDisplay Shop"
+  # Enchantments use the ids from:  https://hub.spigotmc.org/javadocs/spigot/org/bukkit/enchantments/Enchantment.html
+  # (NOTE: Use the format "<id>:<level starting at 0>")
+  enchantments: [ ]
+  # Flags work similar to the enchantments and pull the ids from: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/inventory/ItemFlag.html
+  # (NOTE: You only need to add the id, if the flag is in the list it is just set to true.)
+  flags: [ ]
+  # This is for special use of textures. Leave at -1 to avoid.
+  model-data: 0
+  lore: [ "", "&aPlace &7to create a new empty shop." ]
+
+# Here is where the shop currency item can be fully configured.
+# (Note: This is only used as the currency if Vault is disabled)
+shop-currency-item:
+  # If this is enabled, shop owners will not be able to change the trade item and this item will be used.
+  force-use: false
+  material: "GOLD_INGOT"
+  durability: 0
+  # Enchantments use the ids from:  https://hub.spigotmc.org/javadocs/spigot/org/bukkit/enchantments/Enchantment.html
+  # (NOTE: Use the format "<id>:<level starting at 0>")
+  enchantments: [ ]
+  # Flags work similar to the enchantments and pull the ids from: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/inventory/ItemFlag.html
+  # (NOTE: You only need to add the id, if the flag is in the list it is just set to true.)
+  flags: [ ]
+  # This is for special use of textures. Leave at -1 to avoid.
+  model-data: 0
+  # Leave the display name and lore blank for no item meta (Vanilla Item).
+  display-name: ""
+  lore: [ ]

@@ -1,18 +1,43 @@
-/Core/target/
-*.class
-/v1_21/target/
-/v1_20_r4/target/
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+.kotlin
+
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
 *.iml
-*.xml
-*/target
-/v1_20_r3/target/
-/v1_19_r3/target/
-/v1_19_r2/target/
-/v1_19_r1/target/
-/v1_18_r2/target/
-/v1_18_r1/target/
-.idea/*
-/v1_17_r1/target/
-/v1_16_r3/target/
-/v1_16_r2/target/
-/v1_16_r1/target/
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store

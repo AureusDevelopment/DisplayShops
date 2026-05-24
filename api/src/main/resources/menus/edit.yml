@@ -1,0 +1,117 @@
+# Please refer to the configuration wiki page (https://github.com/XZot1K/DisplayShopsAPI/wiki/menu-configuration) for documentation.
+# By default, some options for each button are left out to remove clutter. Refer to the link above to see which options may be implemented.
+
+title: "&cShop Edit Menu"
+size: 36
+
+filler-material: "BLACK_STAINED_GLASS_PANE"
+filler-model-data: 0
+
+sale-item-slot: 1
+trade-item-slot: 10
+
+sale-item-change:
+  material: "BARRIER"
+  name: "&dSale Item Selection"
+  lore: [ "", "&eInfo: &7Select an item from", "&7your inventory to set it", "&7as your shop sale item.", "", "&aClick &7to cancel the", "&7item change process." ]
+
+trade-item-change:
+  material: "BARRIER"
+  name: "&dTrade/Currency Item Selection"
+  lore: [ "", "&eInfo: &7Select an item from", "&7your inventory to set it", "&7as your shop trade/currency item.", "", "&aClick &7to cancel the", "&7item change process." ]
+
+description-entry:
+  title: "&8Enter The Description:"
+  too-similar: "Too Similar."
+
+buttons:
+  sale-item-arrow:
+    slot: 0
+    material: "HEAD:MHF_ArrowRight"
+    name: "&eItem Being Sold &c\u21E8"
+    lore: [ "", "&7Click the shop item to", "&7change the item being", "&7sold by the shop.", "", "&aClick &7to clear the", "&7shop sale item." ]
+  trade-item-arrow:
+    slot: 9
+    material: "HEAD:MHF_ArrowRight"
+    name: "&eItem Wanted &c\u21E8"
+    lore: [ "", "&7Click the shop item to", "&7change the item wanted", "&7by the shop for trade.", "", "&aClick &7to clear the", "&7shop trade item." ]
+  buy-price:
+    slot: 3
+    material: "GOLD_INGOT"
+    name: "&eBuy Price: &a{base-buy-price}"
+    lore: [ "", "&aClick &7to adjust", "&7the buy price." ]
+  sell-price:
+    slot: 4
+    material: "EMERALD"
+    name: "&eSell Price: &a{sell-price}"
+    lore: [ "", "&aClick &7to adjust", "&7the sell price." ]
+  shop-item-amount:
+    slot: 5
+    material: "REDSTONE_TORCH"
+    name: "&eStack Size: &a{shop-item-amount}"
+    lore: [ "", "&aClick &7to adjust", "&7the shop item's unit", "&7stack size." ]
+  stock:
+    slot: 12
+    material: "CHEST_MINECART"
+    name: "&eStock: &a{stock}"
+    lore: [ "", "&aClick &7to manage", "&7the stock of", "&7the shop." ]
+  balance:
+    slot: 13
+    material: "HOPPER_MINECART"
+    name: "&eBalance: &a{balance}"
+    lore: [ "", "&aClick &7to manage", "&7the balance of", "&7the shop." ]
+  appearance:
+    slot: 27
+    material: "END_PORTAL_FRAME"
+    name: "&bChange Appearance"
+    lore: [ "", "&aClick &7to change", "&7the appearance of", "&7the shop's base-block." ]
+  description:
+    slot: 28
+    material: "OAK_SIGN"
+    name: "&6Change Description"
+    lore: [ "", "&f{description}", "", "&aClick &7to change", "&7the description of", "&7the shop." ]
+  assistants:
+    slot: 29
+    material: "PLAYER_HEAD"
+    name: "&bManage Assistants"
+    lore: [ "", "&7Current Assistants: &e{assistant-count}", "&aClick &7to manage", "&7the assistants of", "&7the shop." ]
+  delete:
+    slot: 31
+    material: "BARRIER"
+    name: "&c\u2716 &4Destroy Shop &c\u2716"
+    lore: [ "", "&aClick &7to destroy the shop." ]
+  clear-limits:
+    slot: 26
+    material: "RED_DYE"
+    name: "&cClear Limit Counters"
+    lore: [ "", "&aClick &7to clear", "&7all limit counters." ]
+  global-buy-limit:
+    slot: 7
+    material: "HOPPER"
+    name: "&dGlobal Buy Limit"
+    lore: [ "", "&7Current Limit: &e{global-buy-limit}", "", "&aClick &7to adjust", "&7the global buy", "&7transaction limit." ]
+  global-sell-limit:
+    slot: 8
+    material: "HOPPER"
+    name: "&dGlobal Sell Limit"
+    lore: [ "", "&7Current Limit: &e{global-sell-limit}", "", "&aClick &7to adjust", "&7the global sell", "&7transaction limit." ]
+  player-buy-limit:
+    slot: 16
+    material: "HOPPER"
+    name: "&dBuy Player Limit"
+    lore: [ "", "&7Current Limit: &e{player-buy-limit}", "", "&aClick &7to adjust", "&7the per-player buy", "&7transaction limit." ]
+  player-sell-limit:
+    slot: 17
+    material: "HOPPER"
+    name: "&dSell Player Limit"
+    lore: [ "", "&7Current Limit: &e{player-sell-limit}", "", "&aClick &7to adjust", "&7the per-player sell", "&7transaction limit." ]
+  currency-type:
+    slot: 14
+    material: "DIAMOND"
+    name: "&6\uD83E\uDE99 &eCurrency Type: &b{type}"
+    lore: [ "", "&aClick &7to change", "&7the currency type", "&7the shop can", "&7accept." ]
+  close:
+    slot: 33
+    material: "TEXTURE:eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWE2Nzg3YmEzMjU2NGU3YzJmM2EwY2U2NDQ5OGVjYmIyM2I4OTg0NWU1YTY2YjVjZWM3NzM2ZjcyOWVkMzcifX19"
+    name: "&cClose"
+    lore: [ "", "&aClick &7to close the", "&7shop edit menu." ]

@@ -1,0 +1,50 @@
+# Please refer to the configuration wiki page (https://github.com/XZot1K/DisplayShopsAPI/wiki/menu-configuration) for documentation.
+# By default, some options for each button are left out to remove clutter. Refer to the link above to see which options may be implemented.
+
+title: "&8Editing Assistants"
+size: 45
+
+empty-slots: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,17, 18,
+               19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+
+filler-material: "BLACK_STAINED_GLASS_PANE"
+filler-model-data: 0
+
+search-entry:
+  title: "&8Enter Search Text:"
+
+assistant-entry:
+  title: "&8Enter Name or UUID:"
+
+active-color: "&a"
+inactive-color: "&c"
+head-lore: [ "", "&eClick &7to toggle", "&7assistant access for", "&7this player." ]
+
+buttons:
+  previous:
+    slot: 36
+    material: "TEXTURE:eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmQ2OWUwNmU1ZGFkZmQ4NGU1ZjNkMWMyMTA2M2YyNTUzYjJmYTk0NWVlMWQ0ZDcxNTJmZGM1NDI1YmMxMmE5In19fQ=="
+    name: "&ePrevious Page"
+  next:
+    slot: 37
+    material: "TEXTURE:eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTliZjMyOTJlMTI2YTEwNWI1NGViYTcxM2FhMWIxNTJkNTQxYTFkODkzODgyOWM1NjM2NGQxNzhlZDIyYmYifX19"
+    name: "&eNext Page"
+  add:
+    slot: 39
+    material: "LIME_WOOL"
+    name: "&eAdd Assistant"
+    lore: [ "", "&7Adds an assistant by name or UUID." ]
+  remove:
+    slot: 41
+    material: "RED_WOOL"
+    name: "&eRemove Assistant"
+    lore: [ "", "&7Removes an assistant by name or UUID." ]
+  search:
+    slot: 40
+    material: "OAK_SIGN"
+    name: "&dSearch"
+    lore: [ "", "&7Current Search: &e{search-text}" ]
+  return:
+    slot: 44
+    material: "TEXTURE:eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWE2Nzg3YmEzMjU2NGU3YzJmM2EwY2U2NDQ5OGVjYmIyM2I4OTg0NWU1YTY2YjVjZWM3NzM2ZjcyOWVkMzcifX19"
+    name: "&cReturn"

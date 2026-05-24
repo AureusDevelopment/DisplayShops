@@ -1,0 +1,156 @@
+# Please refer to the configuration wiki page (https://github.com/XZot1K/DisplayShopsAPI/wiki/menu-configuration) for documentation.
+# By default, some options for each button are left out to remove clutter. Refer to the link above to see which options may be implemented.
+
+title: "&8Shop Appearance"
+size: 45
+
+empty-slots: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+               19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+
+filler-material: "BLACK_STAINED_GLASS_PANE"
+filler-model-data: 0
+
+search-entry:
+  title: "&8Enter Search Text:"
+
+selected-format:
+  enchanted: true
+  name: "&a{material}"
+  lore: [ "", "&aActive Appearance" ]
+
+locked-format:
+  name: "&c{material}"
+  lore:
+    - ""
+    - "&aClick &7to unlock this"
+    - "&7base block appearance."
+    - ""
+    - "{requirement}"
+    - "&7Cost: &e{price}"
+
+unlocked-format:
+  name: "&e{material}"
+  lore:
+    - ""
+    - "&aClick &7to select this"
+    - "&7as the base block appearance."
+
+# NOTE: Sorting alphabetically will override the default appearance order.
+sort-alphabetically: true
+
+# If enabled, appearances will be unlocked simply by having their associated permission.
+permission-unlock-mode: false
+
+# This is the default appearance a shop will use.
+default-appearance: "Default"
+
+# Ensure to always have at least one appearance.
+appearances:
+  Default:
+    material: "END_PORTAL_FRAME"
+    offset: "0,-0.16,0"
+  Traditional:
+    material: "CHEST"
+    price: 75.0
+    offset: "0,-0.1,0"
+  Security:
+    material: "LOCKED_CHEST"
+    price: 125.0
+    offset: "0,-0.1,0"
+  Aged:
+    material: "BARREL"
+    price: 125.0
+    offset: "0,0,0"
+  Worker:
+    material: "CRAFTING_TABLE"
+    price: 150.0
+    offset: "0,0,0"
+  Cooker:
+    material: "FURNACE"
+    price: 100.0
+    offset: "0,0,0"
+  Ender:
+    material: "ENDER_CHEST"
+    price: 300.0
+    offset: "0,-0.1,0"
+    permission: "displayshops.appearance.ender"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Musical:
+    material: "JUKEBOX"
+    price: 200.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.musical"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Sound:
+    material: "NOTE_BLOCK"
+    price: 160.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.sound"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Rich:
+    material: "DIAMOND_BLOCK"
+    price: 500.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.rich"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Golden:
+    material: "GOLD_BLOCK"
+    price: 450.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.golden"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Tough:
+    material: "IRON_BLOCK"
+    price: 300.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.tough"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Miner:
+    material: "COAL_BLOCK"
+    price: 250.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.miner"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Rare:
+    material: "LAPIS_BLOCK"
+    price: 400.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.rare"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Banker:
+    material: "EMERALD_BLOCK"
+    price: 600.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.banker"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Fancy:
+    material: "QUARTZ_BLOCK"
+    price: 350.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.fancy"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+  Useful:
+    material: "HOPPER"
+    price: 415.0
+    offset: "0,0,0"
+    permission: "displayshops.appearance.useful"
+    requirement: [ "&7Requires the &e{permission} &7permission." ]
+
+buttons:
+  previous:
+    slot: 36
+    material: "TEXTURE:eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmQ2OWUwNmU1ZGFkZmQ4NGU1ZjNkMWMyMTA2M2YyNTUzYjJmYTk0NWVlMWQ0ZDcxNTJmZGM1NDI1YmMxMmE5In19fQ=="
+    name: "&ePrevious Page"
+  next:
+    slot: 37
+    material: "TEXTURE:eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTliZjMyOTJlMTI2YTEwNWI1NGViYTcxM2FhMWIxNTJkNTQxYTFkODkzODgyOWM1NjM2NGQxNzhlZDIyYmYifX19"
+    name: "&eNext Page"
+  search:
+    slot: 40
+    material: "OAK_SIGN"
+    name: "&dSearch"
+    lore: [ "", "&7Current Search: &e{search-text}" ]
+  return:
+    slot: 44
+    material: "TEXTURE:eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWE2Nzg3YmEzMjU2NGU3YzJmM2EwY2U2NDQ5OGVjYmIyM2I4OTg0NWU1YTY2YjVjZWM3NzM2ZjcyOWVkMzcifX19"
+    name: "&cReturn"
