@@ -368,7 +368,13 @@ public class Display {
                 entity.setShadowed(false);
                 entity.setSilent(true);
                 entity.setVisibleByDefault(false);
-                DisplayShops.getPluginInstance().getServer().getScheduler().runTaskAsynchronously(DisplayShops.getPluginInstance(), () -> entity.setText(text));
+                // Set the text synchronously. The enclosing spawn consumer already runs on the
+                // main server thread (TextDisplay spawning is a sync Bukkit API call), and
+                // entity.setText() is a thread-unsafe Bukkit API call that must not be invoked
+                // asynchronously. Scheduling a fresh async task per spawn caused the Craft
+                // Scheduler thread pool to grow to one worker per shop on servers with many
+                // shops (e.g. ~114 workers on a server with 114 shops), severely degrading TPS.
+                entity.setText(text);
 
                 //final int longWordCount = DisplayShops.getPluginInstance().getConfig().getInt("description-long-word-wrap");
                 //entity.setLineWidth(120);
