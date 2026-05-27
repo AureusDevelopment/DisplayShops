@@ -131,17 +131,19 @@ public class VisualTask extends BukkitRunnable {
                         double value = (double) DisplayShops.getPluginInstance().getConfig().getInt("always-display-radius", 15) / 2;
                         Location min = shop.getBaseLocation().asBukkitLocation().clone().subtract(value, value, value);
                         Location max = shop.getBaseLocation().asBukkitLocation().clone().add(value, value, value);
-                        boolean found = false;
-                        for (x = min.getBlockX(); x <= max.getBlockY(); x++) {
-                            for (y = min.getBlockY(); y <= max.getBlockY(); y++) {
-                                for (z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
-                                    if (player.getLocation().getBlockX() == x && player.getLocation().getBlockY() == y && player.getLocation().getBlockZ() == z) {
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                        // AABB containment check (O(1)). The previous implementation iterated every integer
+                        // coordinate inside the box and compared each against the player's location, which
+                        // is O(width * height * depth) per shop per online player per VisualTask tick. The
+                        // X-loop's upper bound was also typoed as max.getBlockY(), so for shops whose X
+                        // coordinate differed greatly from their Y coordinate (e.g. shops at large +/- X in
+                        // overworld scale maps) the loop iterated thousands–millions of times per shop and
+                        // drove the Craft Scheduler async pool to 100% CPU on multiple workers.
+                        final int pX = player.getLocation().getBlockX(),
+                                  pY = player.getLocation().getBlockY(),
+                                  pZ = player.getLocation().getBlockZ();
+                        boolean found = pX >= min.getBlockX() && pX <= max.getBlockX()
+                                     && pY >= min.getBlockY() && pY <= max.getBlockY()
+                                     && pZ >= min.getBlockZ() && pZ <= max.getBlockZ();
                         boolean finalFound = found;
                         DisplayShops.getPluginInstance().getServer().getScheduler().runTask(DisplayShops.getPluginInstance(), () -> {
                             display.show(player, finalFound);
