@@ -5,6 +5,9 @@
 package xzot1k.plugins.ds.core.tasks;
 
 import com.nexomc.nexo.api.NexoItems;
+import dev.lone.itemsadder.api.CustomStack;
+import io.th0rgal.oraxen.api.OraxenItems;
+import io.th0rgal.oraxen.items.ItemBuilder;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.ItemDisplay;
@@ -18,10 +21,7 @@ import xzot1k.plugins.ds.api.objects.Shop;
 import xzot1k.plugins.ds.core.packets.Display;
 import xzot1k.plugins.ds.core.utils.nms_utils.Ref;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class VisualTask extends BukkitRunnable {
 
@@ -53,7 +53,8 @@ public class VisualTask extends BukkitRunnable {
         // ~10,000 YAML config reads per second for these few values alone.
         final List<String> cachedItemOffsets = DisplayShops.getPluginInstance().getConfig().getStringList("item-display-offsets");
         final double cachedAlwaysDisplayRadius = (double) DisplayShops.getPluginInstance().getConfig().getInt("always-display-radius", 15) / 2;
-        final Player[] onlinePlayers = getPluginInstance().getServer().getOnlinePlayers().toArray(new Player[0]);
+        // getOnlinePlayers returns a live view of players - this collection can be updated and or removed, this way we prevent ConcurrentModificationException (modification error while iterating)
+        final Player[] onlinePlayers = new ArrayList<Player>(getPluginInstance().getServer().getOnlinePlayers()).toArray(new Player[0]);
 
         for (Shop shop : getPluginInstance().getManager().getShopMap().values()) {
             if (shop == null || shop.getBaseLocation() == null) {continue;}
@@ -83,38 +84,38 @@ public class VisualTask extends BukkitRunnable {
                         && ((ItemDisplay) display.getItemHolder()).getItemStack() == null
                         || (((ItemDisplay) display.getItemHolder()).getItemStack() != null && !((ItemDisplay) display.getItemHolder()).getItemStack().isSimilar(item)))) {
                     // handle offset
-                    List<String> itemOffsets = cachedItemOffsets;
-                    for (int i = -1; ++i < itemOffsets.size(); ) {
-                        String line = itemOffsets.get(i);
-                        if (!line.contains(":")) {continue;}
-
+                    for(String line : cachedItemOffsets) {
+                        if(!line.contains(":"))
+                            continue;
                         String[] args = line.split(":");
-                        if (args.length < 2 || !args[1].contains(",")) {continue;}
-
-                        final String material = args[0];
-                        boolean matches = false;
-
-                        if (DisplayShops.getPluginInstance().isItemAdderInstalled()) {
-                            if (dev.lone.itemsadder.api.CustomStack.isInRegistry(material)) {matches = true;}
+                        if(args.length < 2 || !args[1].equals(",")) {
+                            continue;
                         }
-                        if (DisplayShops.getPluginInstance().isNexoInstalled()) {
-                            if (NexoItems.exists(material)) {
+                        String material = args[0];
+                        boolean matches = false;
+                        if(DisplayShops.getPluginInstance().isItemAdderInstalled()){
+                            if(CustomStack.isInRegistry(material)){
                                 matches = true;
                             }
                         }
-
-                        if (DisplayShops.getPluginInstance().isOraxenInstalled()) {
-                            io.th0rgal.oraxen.items.ItemBuilder itemBuilder = io.th0rgal.oraxen.api.OraxenItems.getItemById(material);
-                            if (itemBuilder != null) {matches = true;}
+                        if(DisplayShops.getPluginInstance().isNexoInstalled()){
+                            if(NexoItems.exists(material)){
+                                matches=true;
+                            }
                         }
-
-                        if (!matches && !item.getType().name().contains(args[0].toUpperCase().replace(" ", "_").replace("-", "_"))) {
+                        if(DisplayShops.getPluginInstance().isOraxenInstalled()){
+                            ItemBuilder itemBuilder = OraxenItems.getItemById(material);
+                            if(itemBuilder!=null){
+                                matches=true;
+                            }
+                        }
+                        if(!matches && !item.getType().name().contains(material.toUpperCase().replace(" ","_").replace("-","_"))){
                             continue;
                         }
-
                         String[] offsets = args[1].split(",");
-                        if (offsets.length < 4) {continue;}
-
+                        if(offsets.length < 4){
+                            continue;
+                        }
                         x = Double.parseDouble(offsets[0]);
                         y = Double.parseDouble(offsets[1]);
                         z = Double.parseDouble(offsets[2]);
@@ -168,10 +169,9 @@ public class VisualTask extends BukkitRunnable {
                         final int pX = player.getLocation().getBlockX(),
                                   pY = player.getLocation().getBlockY(),
                                   pZ = player.getLocation().getBlockZ();
-                        boolean found = pX >= minBX && pX <= maxBX
+                        boolean finalFound = pX >= minBX && pX <= maxBX
                                      && pY >= minBY && pY <= maxBY
                                      && pZ >= minBZ && pZ <= maxBZ;
-                        boolean finalFound = found;
                         DisplayShops.getPluginInstance().getServer().getScheduler().runTask(DisplayShops.getPluginInstance(), () -> {
                             display.show(player, finalFound);
                         });
