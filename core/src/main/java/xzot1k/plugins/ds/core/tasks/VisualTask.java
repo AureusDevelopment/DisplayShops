@@ -46,20 +46,33 @@ public class VisualTask extends BukkitRunnable {
 
         boolean isNew = getPluginInstance().getDisplayManager() != null;
 
+        // Per-tick caches: config values and player snapshot don't change between shops in
+        // a single VisualTask iteration. Reading them once amortizes the cost across all
+        // shops/players instead of paying for shopCount * playerCount lookups every 4 ticks.
+        // On a server with 200 shops and 10 players, the un-cached version was performing
+        // ~10,000 YAML config reads per second for these few values alone.
+        final List<String> cachedItemOffsets = DisplayShops.getPluginInstance().getConfig().getStringList("item-display-offsets");
+        final double cachedAlwaysDisplayRadius = (double) DisplayShops.getPluginInstance().getConfig().getInt("always-display-radius", 15) / 2;
+        final Player[] onlinePlayers = getPluginInstance().getServer().getOnlinePlayers().toArray(new Player[0]);
+
         for (Shop shop : getPluginInstance().getManager().getShopMap().values()) {
             if (shop == null || shop.getBaseLocation() == null) {continue;}
 
             // if display manager exists, use new displays
             if (isNew) {
-                World world = DisplayShops.getPluginInstance().getServer().getWorld(shop.getBaseLocation().getWorldName());
+                // Cache the LocationClone once per shop. Each call to getBaseLocation() was
+                // an unsynchronized field read but asBukkitLocation() constructs a new Bukkit
+                // Location each call — keeping a single bukkitBase avoids repeated allocation.
+                final xzot1k.plugins.ds.api.objects.LocationClone baseLocation = shop.getBaseLocation();
+                World world = DisplayShops.getPluginInstance().getServer().getWorld(baseLocation.getWorldName());
                 if (world == null) {continue;}
 
-                if (!world.isChunkLoaded((int) shop.getBaseLocation().getX() >> 4, (int) shop.getBaseLocation().getZ() >> 4)) {
+                if (!world.isChunkLoaded((int) baseLocation.getX() >> 4, (int) baseLocation.getZ() >> 4)) {
                     continue;
                 }
 
                 Display display = getPluginInstance().getDisplayManager().getDisplay(shop.getShopId());
-                if (display == null || shop.getBaseLocation() == null) {continue;}
+                if (display == null) {continue;}
 
                 final String generateText = shop.isClaimable() ? display.generateTextClaimable() : display.generateText();
                 final ItemStack item = (shop.getShopItem() != null ? shop.getShopItem() : Display.barrier);
@@ -70,7 +83,7 @@ public class VisualTask extends BukkitRunnable {
                         && ((ItemDisplay) display.getItemHolder()).getItemStack() == null
                         || (((ItemDisplay) display.getItemHolder()).getItemStack() != null && !((ItemDisplay) display.getItemHolder()).getItemStack().isSimilar(item)))) {
                     // handle offset
-                    List<String> itemOffsets = DisplayShops.getPluginInstance().getConfig().getStringList("item-display-offsets");
+                    List<String> itemOffsets = cachedItemOffsets;
                     for (int i = -1; ++i < itemOffsets.size(); ) {
                         String line = itemOffsets.get(i);
                         if (!line.contains(":")) {continue;}
@@ -125,23 +138,39 @@ public class VisualTask extends BukkitRunnable {
                 }
 
 
-                for (Player player : getPluginInstance().getServer().getOnlinePlayers()) {
+                // Precompute the AABB once per shop instead of once per (shop * player). The min/max
+                // bounds depend only on the shop's base location and the radius config; they don't
+                // vary across players. Cloning Bukkit Locations is allocation-heavy and was firing
+                // shopCount * playerCount times every 4 ticks. Computed lazily so non-alwaysDisplay
+                // servers don't pay the cost.
+                final boolean alwaysDisplay = isAlwaysDisplay();
+                final int minBX, minBY, minBZ, maxBX, maxBY, maxBZ;
+                if (alwaysDisplay) {
+                    Location bukkitBase = baseLocation.asBukkitLocation();
+                    Location min = bukkitBase.clone().subtract(cachedAlwaysDisplayRadius, cachedAlwaysDisplayRadius, cachedAlwaysDisplayRadius);
+                    Location max = bukkitBase.clone().add(cachedAlwaysDisplayRadius, cachedAlwaysDisplayRadius, cachedAlwaysDisplayRadius);
+                    minBX = min.getBlockX(); minBY = min.getBlockY(); minBZ = min.getBlockZ();
+                    maxBX = max.getBlockX(); maxBY = max.getBlockY(); maxBZ = max.getBlockZ();
+                } else {
+                    minBX = minBY = minBZ = maxBX = maxBY = maxBZ = 0;
+                }
+
+                for (Player player : onlinePlayers) {
                     if (player == null || !player.isOnline()) {continue;}
-                    if (isAlwaysDisplay()) {
-                        double value = (double) DisplayShops.getPluginInstance().getConfig().getInt("always-display-radius", 15) / 2;
-                        Location min = shop.getBaseLocation().asBukkitLocation().clone().subtract(value, value, value);
-                        Location max = shop.getBaseLocation().asBukkitLocation().clone().add(value, value, value);
-                        boolean found = false;
-                        for (x = min.getBlockX(); x <= max.getBlockY(); x++) {
-                            for (y = min.getBlockY(); y <= max.getBlockY(); y++) {
-                                for (z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
-                                    if (player.getLocation().getBlockX() == x && player.getLocation().getBlockY() == y && player.getLocation().getBlockZ() == z) {
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                    if (alwaysDisplay) {
+                        // AABB containment check (O(1)). The previous implementation iterated every integer
+                        // coordinate inside the box and compared each against the player's location, which
+                        // is O(width * height * depth) per shop per online player per VisualTask tick. The
+                        // X-loop's upper bound was also typoed as max.getBlockY(), so for shops whose X
+                        // coordinate differed greatly from their Y coordinate (e.g. shops at large +/- X in
+                        // overworld scale maps) the loop iterated thousands–millions of times per shop and
+                        // drove the Craft Scheduler async pool to 100% CPU on multiple workers.
+                        final int pX = player.getLocation().getBlockX(),
+                                  pY = player.getLocation().getBlockY(),
+                                  pZ = player.getLocation().getBlockZ();
+                        boolean found = pX >= minBX && pX <= maxBX
+                                     && pY >= minBY && pY <= maxBY
+                                     && pZ >= minBZ && pZ <= maxBZ;
                         boolean finalFound = found;
                         DisplayShops.getPluginInstance().getServer().getScheduler().runTask(DisplayShops.getPluginInstance(), () -> {
                             display.show(player, finalFound);
@@ -164,7 +193,7 @@ public class VisualTask extends BukkitRunnable {
             if (shop.isClaimable())
                 continue;
 
-            for (Player player : getPluginInstance().getServer().getOnlinePlayers()) {
+            for (Player player : onlinePlayers) {
                 if (getPlayersToRefresh().contains(player.getUniqueId()) || getShopsToRefresh().contains(shop.getShopId())) {
                     shop.kill(player);
                     getPluginInstance().killCurrentShopPacket(player);
